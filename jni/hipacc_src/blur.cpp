@@ -80,7 +80,7 @@ int runBlur(int w, int h, uchar4 *pin, uchar4 *pout) {
 
     // only filter kernel sizes 3x3 and 5x5 implemented
     if (size_x != size_y && (size_x != 3 || size_x != 5)) {
-        return 1;
+        return -1;
     }
 
     // define Domain for blur filter
@@ -105,7 +105,7 @@ int runBlur(int w, int h, uchar4 *pin, uchar4 *pout) {
     Image<uchar4> in(width, height);
     Image<uchar4> out(width, height);
 
-    BoundaryCondition<uchar4> bound(in, size_x, size_y, BOUNDARY_UNDEFINED);
+    BoundaryCondition<uchar4> bound(in, size_x, size_y, BOUNDARY_CLAMP);
     Accessor<uchar4> acc(bound, width-2*offset_x, height-2*offset_y, offset_x, offset_y);
 
     IterationSpace<uchar4> iter(out, width-2*offset_x, height-2*offset_y, offset_x, offset_y);
