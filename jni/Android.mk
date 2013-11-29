@@ -6,7 +6,7 @@ LOCAL_MODULE := hipacc_filters
 
 LOCAL_C_INCLUDES := $(SYSROOT_LINK)/usr/include/rs/cpp \
                     $(SYSROOT_LINK)/usr/include/rs \
-                    obj/local/armeabi/objs/$(LOCAL_MODULE) \
+                    obj/local/armeabi/objs/$(LOCAL_MODULE)/hipacc_gen \
                     /scratch-local/usr/include
 										#$(HIPACC_INCLUDE)
 
@@ -19,12 +19,12 @@ HIPACC_RESULT := $(shell hipacc -emit-renderscript -std=c++11 \
                              -I/usr/include \
                              -I/scratch-local/usr/include/dsl \
                              $(LOCAL_CPPFLAGS) -DHIPACC \
-                             jni/hipacc_src/blur.cpp -o jni/blur.cc)
+                             jni/hipacc_src/blur.cpp -o jni/hipacc_gen/blur.cc)
 
 LOCAL_SRC_FILES := hipacc_filters.cpp \
-                   $(subst $(LOCAL_PATH)/,,$(wildcard $(LOCAL_PATH)/*.cc)) \
-                   $(subst $(LOCAL_PATH)/,,$(wildcard $(LOCAL_PATH)/*.rs)) \
-                   $(subst $(LOCAL_PATH)/,,$(wildcard $(LOCAL_PATH)/*.fs))
+                   $(subst $(LOCAL_PATH)/,,$(wildcard $(LOCAL_PATH)/hipacc_gen/*.cc)) \
+                   $(subst $(LOCAL_PATH)/,,$(wildcard $(LOCAL_PATH)/hipacc_gen/*.rs)) \
+                   $(subst $(LOCAL_PATH)/,,$(wildcard $(LOCAL_PATH)/hipacc_gen/*.fs))
 
 LOCAL_LDLIBS := -llog -ljnigraphics \
                 -l$(SYSROOT_LINK)/usr/lib/rs/libcutils.so \
