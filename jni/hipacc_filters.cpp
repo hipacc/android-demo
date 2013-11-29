@@ -16,42 +16,49 @@ extern int runBlur(int w, int h, uchar4* i, uchar4* o);
 extern "C" {
 
 JNIEXPORT int JNICALL
-FUNCTION(runBlur)(JNIEnv *env, jobject thiz, int w, int h, jobject i, jobject o) {
+FUNCTION(runBlur)(JNIEnv *env, jobject thiz, jobject i, jobject o) {
 	LOGI("In native method\n");
 
   int ret;
   void *in;
   void *out;
-	AndroidBitmapInfo in_info;
-	AndroidBitmapInfo out_info;
+  AndroidBitmapInfo in_info;
+  AndroidBitmapInfo out_info;
 
   if ((ret = AndroidBitmap_getInfo(env, i, &in_info)) < 0 ||
       (ret = AndroidBitmap_getInfo(env, o, &out_info)) < 0) {
     LOGE("AndroidBitmap_getInfo() failed ! error=%d", ret);
-    return 1;
+    return -1;
+  }
+
+  LOGI("Checking dimension\n");
+  if (in_info.width != out_info.width ||
+      in_info.height != out_info.height) {
+    LOGE("Bitmap dimensions do not match!");
+    return -1;
   }
 
   LOGI("Checking format\n");
   if (in_info.format != ANDROID_BITMAP_FORMAT_RGBA_8888) {
-    LOGE("Input bitmap format is not RGBA_8888 !");
-    return 1;
+    LOGE("Input bitmap format is not RGBA_8888!");
+    return -1;
   }
   if (out_info.format != ANDROID_BITMAP_FORMAT_RGBA_8888) {
-    LOGE("Output bitmap format is not RGBA_8888 !");
-    return 1;
+    LOGE("Output bitmap format is not RGBA_8888!");
+    return -1;
   }
 
   LOGI("Locking pixels\n");
   if ((ret = AndroidBitmap_lockPixels(env, i, &in)) < 0 ||
       (ret = AndroidBitmap_lockPixels(env, o, &out)) < 0) {
     LOGE("AndroidBitmap_lockPixels() failed ! error=%d", ret);
-    return 1;
+    return -1;
   }
 
-	LOGI("Running blur\n");
-  ret = runBlur(w, h, (uchar4*)in, (uchar4*)out);
+  LOGI("Running blur\n");
+  ret = runBlur(in_info.width, in_info.height, (uchar4*)in, (uchar4*)out);
 
-	LOGI("Unlocking pixels\n");
+  LOGI("Unlocking pixels\n");
   AndroidBitmap_unlockPixels(env, o);
   AndroidBitmap_unlockPixels(env, i);
 
