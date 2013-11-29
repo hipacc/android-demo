@@ -9,27 +9,29 @@ HIPACC_INCLUDES := $(subst hipacc,..,$(shell which hipacc))/include \
 
 LOCAL_C_INCLUDES := $(SYSROOT_LINK)/usr/include/rs/cpp \
                     $(SYSROOT_LINK)/usr/include/rs \
-                    obj/local/armeabi/objs/$(LOCAL_MODULE)/hipacc_gen \
-                    $(HIPACC_INCLUDES)
+                    $(HIPACC_INCLUDES) \
+                    obj/local/armeabi/objs/$(LOCAL_MODULE)/hipacc_gen
 
 LOCAL_CPPFLAGS += -DRS_TARGET_API=19 -DSIZE_X=5 -DSIZE_Y=5
 
-ifeq ($(CLEAN),true)
+ifeq ($(C),1)
   HIPACC_RESULT := $(shell rm $(LOCAL_PATH)/hipacc_gen/*)
 else
   HIPACC_RESULT := $(shell cd $(LOCAL_PATH)/hipacc_gen; \
-                           hipacc -emit-renderscript -std=c++11 \
+                           hipacc -emit-renderscript \
+                               -rs-package org.hipacc.example \
+                               -std=c++11 \
                                -I/usr/include \
                                -I$(shell clang -print-file-name=include) \
                                -I$(shell llvm-config --includedir) \
                                -I$(shell llvm-config --includedir)/c++/v1 \
                                $(addprefix -I,$(HIPACC_INCLUDES)) \
                                $(LOCAL_CPPFLAGS) -DHIPACC \
-                               ../hipacc_src/blur.cpp -o blur.cc)
+                               ../hipacc_src/blur.cpp -o blur.cpp)
 endif
 
 LOCAL_SRC_FILES := hipacc_filters.cpp \
-                   $(subst $(LOCAL_PATH)/,,$(wildcard $(LOCAL_PATH)/hipacc_gen/*.cc)) \
+                   $(subst $(LOCAL_PATH)/,,$(wildcard $(LOCAL_PATH)/hipacc_gen/*.cpp)) \
                    $(subst $(LOCAL_PATH)/,,$(wildcard $(LOCAL_PATH)/hipacc_gen/*.rs)) \
                    $(subst $(LOCAL_PATH)/,,$(wildcard $(LOCAL_PATH)/hipacc_gen/*.fs))
 
