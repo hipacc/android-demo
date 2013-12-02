@@ -37,14 +37,14 @@ public class MainActivity extends Activity {
         mBtnHipacc = (Button) findViewById(R.id.buttonHIPAcc);
 
         mBitmapIn = BitmapFactory.decodeResource(this.getResources(),
-                R.drawable.lenna);
+                R.drawable.landscape);
         mBitmapOut = Bitmap.createBitmap(mBitmapIn.getWidth(),
                 mBitmapIn.getHeight(), mBitmapIn.getConfig());
-        
+
         mBtnNaive.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Integer time = mNaive.runBlur(mBitmapIn, mBitmapOut);
+                Integer time = mNaive.runGaussian(mBitmapIn, mBitmapOut);
                 Toast.makeText(MainActivity.this,
                         "Time: " + time.toString() + "ms", Toast.LENGTH_LONG)
                         .show();
@@ -55,7 +55,7 @@ public class MainActivity extends Activity {
         mBtnHipacc.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Integer time = mHipacc.runBlur(mBitmapIn, mBitmapOut);
+                Integer time = mHipacc.runGaussian(mBitmapIn, mBitmapOut);
                 Toast.makeText(MainActivity.this,
                         "Time: " + time.toString() + "ms", Toast.LENGTH_LONG)
                         .show();
@@ -70,5 +70,5 @@ public class MainActivity extends Activity {
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
-    
+
 }

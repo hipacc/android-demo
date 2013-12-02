@@ -8,4 +8,5 @@ public class HIPAccFilters {
     }
 
     public native int runBlur(Bitmap in, Bitmap out);
+    public native int runGaussian(Bitmap in, Bitmap out);
 }

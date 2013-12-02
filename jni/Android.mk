@@ -12,12 +12,16 @@ LOCAL_C_INCLUDES := $(SYSROOT_LINK)/usr/include/rs/cpp \
                     $(HIPACC_INCLUDES) \
                     obj/local/armeabi/objs/$(LOCAL_MODULE)/hipacc_gen
 
-LOCAL_CPPFLAGS += -DRS_TARGET_API=19 -DSIZE_X=5 -DSIZE_Y=5
+LOCAL_CPPFLAGS += -DRS_TARGET_API=19 -DSIZE_X=5 -DSIZE_Y=5 -DEXCLUDE_IMPL
+
+HIPACC_SRC := $(subst $(LOCAL_PATH)/hipacc_src/,,\
+                      $(wildcard $(LOCAL_PATH)/hipacc_src/*.cpp))
 
 ifeq ($(C),1)
   HIPACC_RESULT := $(shell rm $(LOCAL_PATH)/hipacc_gen/*)
 else
-  HIPACC_RESULT := $(shell cd $(LOCAL_PATH)/hipacc_gen; \
+  $(foreach SRC,$(HIPACC_SRC), \
+  	HIPACC_RESULT := $(shell cd $(LOCAL_PATH)/hipacc_gen; \
                            hipacc -emit-renderscript \
                                -rs-package org.hipacc.example \
                                -std=c++11 \
@@ -27,13 +31,17 @@ else
                                -I$(shell llvm-config --includedir)/c++/v1 \
                                $(addprefix -I,$(HIPACC_INCLUDES)) \
                                $(LOCAL_CPPFLAGS) -DHIPACC \
-                               ../hipacc_src/blur.cpp -o blur.cpp)
+                               ../hipacc_src/$(SRC) -o $(SRC));)
 endif
 
-LOCAL_SRC_FILES := hipacc_filters.cpp \
-                   $(subst $(LOCAL_PATH)/,,$(wildcard $(LOCAL_PATH)/hipacc_gen/*.cpp)) \
-                   $(subst $(LOCAL_PATH)/,,$(wildcard $(LOCAL_PATH)/hipacc_gen/*.rs)) \
-                   $(subst $(LOCAL_PATH)/,,$(wildcard $(LOCAL_PATH)/hipacc_gen/*.fs))
+LOCAL_SRC_FILES := hipacc_runtime.cpp \
+                   hipacc_filters.cpp \
+                   $(subst $(LOCAL_PATH)/,, \
+                   	       $(wildcard $(LOCAL_PATH)/hipacc_gen/*.cpp)) \
+                   $(subst $(LOCAL_PATH)/,, \
+                   	       $(wildcard $(LOCAL_PATH)/hipacc_gen/*.rs)) \
+                   $(subst $(LOCAL_PATH)/,, \
+                           $(wildcard $(LOCAL_PATH)/hipacc_gen/*.fs))
 
 LOCAL_LDLIBS := -llog -ljnigraphics \
                 -l$(SYSROOT_LINK)/usr/lib/rs/libcutils.so \

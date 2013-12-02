@@ -85,19 +85,19 @@ int runBlur(int w, int h, uchar4 *pin, uchar4 *pout) {
 
     // define Domain for blur filter
     Domain dom(size_x, size_y);
-    const uchar domain[] = { 
-        #if SIZE_X==3
+    const uchar domain[] = {
+#if SIZE_X==3
         1, 1, 1,
         1, 1, 1,
         1, 1, 1
-        #endif
-        #if SIZE_X==5
+#endif
+#if SIZE_X==5
         1, 1, 1, 1, 1,
         1, 1, 1, 1, 1,
         1, 1, 1, 1, 1,
         1, 1, 1, 1, 1,
         1, 1, 1, 1, 1
-        #endif
+#endif
     };
     dom = domain;
 
