@@ -118,7 +118,11 @@ uchar4 *in;
 uchar4 *out;
 int main(int argc, const char **argv) {
 #else
-int runGaussian(int w, int h, uchar4 *in, uchar4 *out) {
+#ifndef FILTERSCRIPT
+int runRSGaussian(int w, int h, uchar4 *in, uchar4 *out) {
+#else
+int runFSGaussian(int w, int h, uchar4 *in, uchar4 *out) {
+#endif
 #endif
     const int width = w;
     const int height = h;

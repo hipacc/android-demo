@@ -34,7 +34,6 @@
 using namespace hipacc;
 using namespace hipacc::math;
 
-
 // Kernel description in HIPAcc
 class BlurFilter : public Kernel<uchar4> {
     private:
@@ -66,7 +65,11 @@ const int w = 1024;
 const int h = 1024;
 int main(int argc, const char **argv) {
 #else
-int runBlur(int w, int h, uchar4 *pin, uchar4 *pout) {
+#ifndef FILTERSCRIPT
+int runRSBlur(int w, int h, uchar4 *pin, uchar4 *pout) {
+#else
+int runFSBlur(int w, int h, uchar4 *pin, uchar4 *pout) {
+#endif
 #endif
     const int width = w;
     const int height = h;

@@ -18,20 +18,36 @@ HIPACC_SRC := $(subst $(LOCAL_PATH)/hipacc_src/,,\
                       $(wildcard $(LOCAL_PATH)/hipacc_src/*.cpp))
 
 ifeq ($(C),1)
-  HIPACC_RESULT := $(shell rm $(LOCAL_PATH)/hipacc_gen/*)
+  HIPACC_CLEAN_RESULT := $(shell rm $(LOCAL_PATH)/hipacc_gen/*)
 else
+  # Call HIPAcc to generate Renderscript sources
   $(foreach SRC,$(HIPACC_SRC), \
-  	HIPACC_RESULT := $(shell cd $(LOCAL_PATH)/hipacc_gen; \
-                           hipacc -emit-renderscript \
-                               -rs-package org.hipacc.example \
-                               -std=c++11 \
-                               -I/usr/include \
-                               -I$(shell clang -print-file-name=include) \
-                               -I$(shell llvm-config --includedir) \
-                               -I$(shell llvm-config --includedir)/c++/v1 \
+  	HIPACC_RS_RESULT := $(shell cd $(LOCAL_PATH)/hipacc_gen; \
+                                hipacc -emit-renderscript \
+                                    -rs-package org.hipacc.example \
+                                    -std=c++11 \
+                                    -I/usr/include \
+                                    -I$(shell clang -print-file-name=include) \
+                                    -I$(shell llvm-config --includedir) \
+                                    -I$(shell llvm-config --includedir)/c++/v1 \
                                $(addprefix -I,$(HIPACC_INCLUDES)) \
                                $(LOCAL_CPPFLAGS) -DHIPACC \
-                               ../hipacc_src/$(SRC) -o $(SRC));)
+                               ../hipacc_src/$(SRC) -o rs$(SRC));)
+
+  # Call HIPAcc to generate Filterscript sources
+  $(foreach SRC,$(HIPACC_SRC), \
+  	HIPACC_FS_RESULT := $(shell cd $(LOCAL_PATH)/hipacc_gen; \
+                                hipacc -emit-filterscript \
+                                    -rs-package org.hipacc.example \
+                                    -std=c++11 \
+                                    -I/usr/include \
+                                    -I$(shell clang -print-file-name=include) \
+                                    -I$(shell llvm-config --includedir) \
+                                    -I$(shell llvm-config --includedir)/c++/v1 \
+                                    $(addprefix -I,$(HIPACC_INCLUDES)) \
+                                    $(LOCAL_CPPFLAGS) -DHIPACC \
+                                    ../hipacc_src/$(SRC) -o fs$(SRC); \
+                                sed -i "1i#define FILTERSCRIPT" fs$(SRC));)
 endif
 
 LOCAL_SRC_FILES := hipacc_runtime.cpp \

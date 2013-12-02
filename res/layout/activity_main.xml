@@ -3,25 +3,28 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".MainActivity" >
+    tools:context=".MainActivity"
+    android:divider="?android:dividerHorizontal"
+    android:showDividers="middle" >
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:orientation="vertical" >
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:layout_margin="10dp" >
 
         <TextView
             android:id="@+id/textView1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Input Image:" />
+            android:text="Input Image" />
 
         <ImageView
             android:id="@+id/imageView1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
             android:src="@drawable/lenna"
             android:adjustViewBounds="true" />
 
@@ -31,13 +34,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:orientation="vertical" >
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:layout_margin="10dp" >
 
         <TextView
             android:id="@+id/textView2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Output image:" />
+            android:text="Output Image" />
 
         <ImageView
             android:id="@+id/imageView2"
@@ -51,19 +56,28 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="0" >
+        android:layout_weight="0"
+        android:orientation="horizontal"
+        android:divider="?android:dividerVertical"
+        android:showDividers="middle" >
 
         <Button
             android:id="@+id/buttonNaive"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Naive execution" />
+            android:layout_weight="1"
+            style="?android:attr/borderlessButtonStyle"
+            android:background="?android:attr/selectableItemBackground"
+            android:text="Naive Execution" />
 
         <Button
             android:id="@+id/buttonHIPAcc"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="HIPAcc execution" />
+            android:layout_weight="1"
+            style="?android:attr/borderlessButtonStyle"
+            android:background="?android:attr/selectableItemBackground"
+            android:text="HIPAcc Execution" />
 
     </LinearLayout>
 

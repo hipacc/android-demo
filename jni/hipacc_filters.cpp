@@ -7,15 +7,12 @@
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
 
+// Creates JNI function name
 #define GLUENAME HIPAccFilters
 #define PACKAGE org_hipacc_example
-#define FUNCTION(NAME) Java_org_hipacc_example_HIPAccFilters_ ## NAME
+#define CREATE_NAME(NAME) Java_org_hipacc_example_HIPAccFilters_ ## NAME
 
-extern int runBlur(int w, int h, uchar4* i, uchar4* o);
-extern int runGaussian(int w, int h, uchar4* i, uchar4* o);
-
-extern "C" {
-
+// Initializes dimensions and pixels pointer from bitmaps
 int init(JNIEnv *env, int* width, int* height, void **ppin, void **ppout,
          jobject in, jobject out) {
   int ret = 0;
@@ -58,52 +55,46 @@ int init(JNIEnv *env, int* width, int* height, void **ppin, void **ppout,
   return ret;
 }
 
+// Deinitializes pixels pointer from bitmaps
 void deinit(JNIEnv *env, jobject in, jobject out) {
   LOGI("Unlocking pixels\n");
   AndroidBitmap_unlockPixels(env, out);
   AndroidBitmap_unlockPixels(env, in);
 }
 
-JNIEXPORT int JNICALL
-FUNCTION(runBlur)(JNIEnv *env, jobject thiz, jobject in, jobject out) {
-  LOGI("In native method\n");
-
-  int width;
-  int height;
-  void *pin;
-  void *pout;
-
-  int ret = init(env, &width, &height, &pin, &pout, in, out);
-
-  if (ret == 0) {
-    LOGI("Running blur\n");
-    ret = runBlur(width, height, (uchar4*)pin, (uchar4*)pout);
-  }
-
-  deinit(env, in, out);
-
-  return ret;
+// Creates wrapper function to call filter from JNI
+#define CREATE_FUNCTION(NAME) \
+extern int run ## NAME(int w, int h, uchar4* i, uchar4* o); \
+ \
+extern "C" { \
+JNIEXPORT int JNICALL \
+CREATE_NAME(run ## NAME)(JNIEnv *env, jobject thiz, jobject in, jobject out) { \
+  LOGI("In native method\n"); \
+ \
+  int width; \
+  int height; \
+  void *pin; \
+  void *pout; \
+ \
+  int ret = init(env, &width, &height, &pin, &pout, in, out); \
+ \
+  if (ret == 0) { \
+    LOGI("Running " #NAME "\n"); \
+    ret = run ## NAME(width, height, (uchar4*)pin, (uchar4*)pout); \
+  } \
+ \
+  deinit(env, in, out); \
+ \
+  return ret; \
+} \
 }
 
-JNIEXPORT int JNICALL
-FUNCTION(runGaussian)(JNIEnv *env, jobject thiz, jobject in, jobject out) {
-  LOGI("In native method\n");
+// Creates Renderscript and Filterscript version of filter
+#define CREATE_FILTER(NAME) \
+    CREATE_FUNCTION(RS ## NAME) \
+    CREATE_FUNCTION(FS ## NAME)
 
-  int width;
-  int height;
-  void *pin;
-  void *pout;
+// Create filters
+CREATE_FILTER(Blur)
+CREATE_FILTER(Gaussian)
 
-  int ret = init(env, &width, &height, &pin, &pout, in, out);
-
-  if (ret == 0) {
-    LOGI("Running gaussian\n");
-    ret = runGaussian(width, height, (uchar4*)pin, (uchar4*)pout);
-  }
-
-  deinit(env, in, out);
-
-  return ret;
-}
-
-}
