@@ -9,5 +9,11 @@
           android:visible="true"
           android:checkable="true">
     </item>
+    <item android:id="@+id/forcecpu"
+          android:checked="false"
+          android:title="Force CPU"
+          android:visible="true"
+          android:checkable="true">
+    </item>
 
 </menu>

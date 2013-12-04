@@ -33,11 +33,6 @@ public class MainActivity extends Activity {
     private Bitmap mBitmapIn;
     private Bitmap mBitmapOut;
 
-    private void updateOutput() {
-        ImageView imgView = (ImageView)findViewById(R.id.imageView2);
-        imgView.setImageBitmap(mBitmapOut);
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -149,11 +144,55 @@ public class MainActivity extends Activity {
                     mRunFilterscript = true;
                     filterscript.setChecked(true);
                 }
-                return false;
+                return true;
             }
         });
 
+        final MenuItem forceCPU = menu.findItem(R.id.forcecpu);
+        forceCPU.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                RootHandler root = new RootHandler(MainActivity.this);
+
+                if (forceCPU.isChecked()) {
+                    root.addCommand("setprop debug.rs.default-CPU-driver 0",
+                            false);
+                    if (root.startAndWait(5000)) {
+                        forceCPU.setChecked(false);
+                        return true;
+                    }
+                } else {
+                    root.addCommand("setprop debug.rs.default-CPU-driver 1",
+                            false);
+                    if (root.startAndWait(5000)) {
+                        forceCPU.setChecked(true);
+                        return true;
+                    }
+                }
+
+                Toast.makeText(MainActivity.this,
+                        "Need root permissions for this feature.",
+                        Toast.LENGTH_SHORT).show();
+
+                return true;
+            }
+        });
+
+        // Get the initial state for setting "Force CPU"
+        RootHandler root = new RootHandler(this);
+        int id = root.addCommand("getprop debug.rs.default-CPU-driver", true);
+        if (root.startAndWait(5000)) {
+            if ("1".equals(root.getReturn(id))) {
+                forceCPU.setChecked(true);
+            }
+        }
+
         return true;
+    }
+
+    private void updateOutput() {
+        ImageView imgView = (ImageView)findViewById(R.id.imageView2);
+        imgView.setImageBitmap(mBitmapOut);
     }
 
 }
