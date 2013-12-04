@@ -76,7 +76,7 @@ public class MainActivity extends Activity {
                 }
 
                 Toast.makeText(MainActivity.this,
-                        "Time: " + time.toString() + "ms", Toast.LENGTH_LONG)
+                        "Time: " + time.toString() + "ms", Toast.LENGTH_SHORT)
                         .show();
                 updateOutput();
             }
@@ -104,7 +104,7 @@ public class MainActivity extends Activity {
                 }
 
                 Toast.makeText(MainActivity.this,
-                        "Time: " + time.toString() + "ms", Toast.LENGTH_LONG)
+                        "Time: " + time.toString() + "ms", Toast.LENGTH_SHORT)
                         .show();
                 updateOutput();
             }
