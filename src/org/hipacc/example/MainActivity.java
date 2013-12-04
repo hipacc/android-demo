@@ -180,7 +180,7 @@ public class MainActivity extends Activity {
             }
         });
 
-        // Get the initial state for setting "Force CPU"
+        // Get the initial state for option "Force CPU"
         RootHandler root = new RootHandler(this);
         int id = root.addCommand("getprop debug.rs.default-CPU-driver", true);
         if (root.startAndWait(ROOT_TIMEOUT)) {

@@ -8,6 +8,7 @@ import android.renderscript.RenderScript;
 import android.renderscript.Type;
 
 public class NaiveFilters {
+
     private Context mCtx;
     private RenderScript mRS;
     private Allocation mInAllocation;

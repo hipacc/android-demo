@@ -15,6 +15,7 @@ import android.os.AsyncTask;
 import android.widget.Toast;
 
 class RootHandler {
+
     private final int POLL_INTERVAL = 100;
     private final int WAIT_OUTPUT = 1000;
 

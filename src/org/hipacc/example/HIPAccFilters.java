@@ -3,6 +3,7 @@ package org.hipacc.example;
 import android.graphics.Bitmap;
 
 public class HIPAccFilters {
+
     static {
         System.loadLibrary("hipacc_filters");
     }
