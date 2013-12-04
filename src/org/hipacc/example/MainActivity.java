@@ -17,6 +17,8 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
+    private final int ROOT_TIMEOUT = 5000;
+
     private enum FilterType {
         Blur,
         Gaussian
@@ -157,14 +159,14 @@ public class MainActivity extends Activity {
                 if (forceCPU.isChecked()) {
                     root.addCommand("setprop debug.rs.default-CPU-driver 0",
                             false);
-                    if (root.startAndWait(5000)) {
+                    if (root.startAndWait(ROOT_TIMEOUT)) {
                         forceCPU.setChecked(false);
                         return true;
                     }
                 } else {
                     root.addCommand("setprop debug.rs.default-CPU-driver 1",
                             false);
-                    if (root.startAndWait(5000)) {
+                    if (root.startAndWait(ROOT_TIMEOUT)) {
                         forceCPU.setChecked(true);
                         return true;
                     }
@@ -181,7 +183,7 @@ public class MainActivity extends Activity {
         // Get the initial state for setting "Force CPU"
         RootHandler root = new RootHandler(this);
         int id = root.addCommand("getprop debug.rs.default-CPU-driver", true);
-        if (root.startAndWait(5000)) {
+        if (root.startAndWait(ROOT_TIMEOUT)) {
             if ("1".equals(root.getReturn(id))) {
                 forceCPU.setChecked(true);
             }
