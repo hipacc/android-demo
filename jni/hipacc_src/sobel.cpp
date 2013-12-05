@@ -42,13 +42,10 @@ using namespace hipacc::math;
 
 #if SIZE_X==3
 #  define MAX_DERIV (255*4)
-#  define MAX_COMB 1442.49783362f // sqrt((255*4)*(255*4)*2)
 #elif SIZE_X==5
 #  define MAX_DERIV (255*48)
-#  define MAX_COMB 17309.9740034f // sqrt((255*48)*(255*48)*2)
 #elif SIZE_X==7
 #  define MAX_DERIV (255*640)
-#  define MAX_COMB 230799.653379f // sqrt((255*640)*(255*640)*2)
 #endif
 
 #ifdef NO_SEP
@@ -138,10 +135,9 @@ class SobelCombine : public Kernel<uchar4> {
             // combine
             float4 in1 = convert_float4(Input1());
             float4 in2 = convert_float4(Input2());
-            float4 out = sqrtf((in1 * in1) + (in2 * in2));
-
-            // normalize
-            out /= MAX_COMB/255;
+            int4 out = convert_int4(sqrtf((in1 * in1) + (in2 * in2)));
+            out = min(out, 255);
+            out = max(out, 0);
 
             // debug: just gather and normalize input 1
             //int4 out = (convert_int4(Input1()) + MAX_DERIV) * 255 / (2 * MAX_DERIV);
