@@ -35,14 +35,14 @@ using namespace hipacc;
 using namespace hipacc::math;
 
 // Kernel description in HIPAcc
-class BlurFilter : public Kernel<uchar4> {
+class Blur : public Kernel<uchar4> {
     private:
         Accessor<uchar4> &in;
         Domain &dom;
         int size_x, size_y;
 
     public:
-        BlurFilter(IterationSpace<uchar4> &iter, Accessor<uchar4> &in,
+        Blur(IterationSpace<uchar4> &iter, Accessor<uchar4> &in,
         		   Domain &dom, int size_x, int size_y)
             : Kernel(iter), in(in), dom(dom), size_x(size_x), size_y(size_y) {
           addAccessor(&in);
@@ -112,7 +112,7 @@ int runFSBlur(int w, int h, uchar4 *pin, uchar4 *pout) {
     Accessor<uchar4> acc(bound, width-2*offset_x, height-2*offset_y, offset_x, offset_y);
 
     IterationSpace<uchar4> iter(out, width-2*offset_x, height-2*offset_y, offset_x, offset_y);
-    BlurFilter filter(iter, acc, dom, size_x, size_y);
+    Blur filter(iter, acc, dom, size_x, size_y);
 
     in = host_in;
     out = host_out;

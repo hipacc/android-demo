@@ -41,14 +41,14 @@ using namespace hipacc;
 
 
 #ifdef NO_SEP
-class GaussianFilter : public Kernel<uchar4> {
+class Gaussian : public Kernel<uchar4> {
     private:
         Accessor<uchar4> &Input;
         Mask<float> &cMask;
         const int size_x, size_y;
 
     public:
-        GaussianFilter(IterationSpace<uchar4> &IS,
+        Gaussian(IterationSpace<uchar4> &IS,
                 Accessor<uchar4> &Input, Mask<float> &cMask, const int
                 size_x, const int size_y) :
             Kernel(IS),
@@ -65,14 +65,14 @@ class GaussianFilter : public Kernel<uchar4> {
         }
 };
 #else
-class GaussianFilterRow : public Kernel<float4> {
+class GaussianRow : public Kernel<float4> {
     private:
         Accessor<uchar4> &Input;
         Mask<float> &cMask;
         const int size;
 
     public:
-        GaussianFilterRow(IterationSpace<float4> &IS, Accessor<uchar4>
+        GaussianRow(IterationSpace<float4> &IS, Accessor<uchar4>
                 &Input, Mask<float> &cMask, const int size) :
             Kernel(IS),
             Input(Input),
@@ -86,14 +86,14 @@ class GaussianFilterRow : public Kernel<float4> {
                     });
         }
 };
-class GaussianFilterColumn : public Kernel<uchar4> {
+class GaussianColumn : public Kernel<uchar4> {
     private:
         Accessor<float4> &Input;
         Mask<float> &cMask;
         const int size;
 
     public:
-        GaussianFilterColumn(IterationSpace<uchar4> &IS,
+        GaussianColumn(IterationSpace<uchar4> &IS,
                 Accessor<float4> &Input, Mask<float> &cMask, const int size) :
             Kernel(IS),
             Input(Input),
@@ -212,18 +212,18 @@ int runFSGaussian(int w, int h, uchar4 *in, uchar4 *out) {
 #ifdef NO_SEP
     BoundaryCondition<uchar4> BcInClamp2(IN, size_x, size_y, BOUNDARY_CLAMP);
     Accessor<uchar4> AccInClamp2(BcInClamp2);
-    GaussianFilter filter(IsOut, AccInClamp2, M, size_x, size_y);
+    Gaussian filter(IsOut, AccInClamp2, M, size_x, size_y);
 
     filter.execute();
     timing = hipaccGetLastKernelTiming();
 #else
     BoundaryCondition<uchar4> BcInClamp(IN, size_x, 1, BOUNDARY_CLAMP);
     Accessor<uchar4> AccInClamp(BcInClamp);
-    GaussianFilterRow filterRow(IsTmp, AccInClamp, MX, size_x);
+    GaussianRow filterRow(IsTmp, AccInClamp, MX, size_x);
 
     BoundaryCondition<float4> BcTmpClamp(TMP, 1, size_y, BOUNDARY_CLAMP);
     Accessor<float4> AccTmpClamp(BcTmpClamp);
-    GaussianFilterColumn filterCol(IsOut, AccTmpClamp, MY, size_y);
+    GaussianColumn filterCol(IsOut, AccTmpClamp, MY, size_y);
 
     filterRow.execute();
     timing = hipaccGetLastKernelTiming();
