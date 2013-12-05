@@ -7,6 +7,7 @@
     <string-array name="filters_array">
         <item>Blur</item>
         <item>Gaussian</item>
+        <item>Sobel</item>
     </string-array>
 
 </resources>

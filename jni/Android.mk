@@ -25,6 +25,7 @@ else
   	HIPACC_RS_RESULT := $(shell cd $(LOCAL_PATH)/hipacc_gen; \
                                 hipacc -emit-renderscript \
                                     -rs-package org.hipacc.example \
+                                    -pixels-per-thread 1 \
                                     -std=c++11 \
                                     -I/usr/include \
                                     -I$(shell clang -print-file-name=include) \
@@ -39,6 +40,7 @@ else
   	HIPACC_FS_RESULT := $(shell cd $(LOCAL_PATH)/hipacc_gen; \
                                 hipacc -emit-filterscript \
                                     -rs-package org.hipacc.example \
+                                    -pixels-per-thread 1 \
                                     -std=c++11 \
                                     -I/usr/include \
                                     -I$(shell clang -print-file-name=include) \
