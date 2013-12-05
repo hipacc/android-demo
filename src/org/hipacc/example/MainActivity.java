@@ -17,7 +17,7 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
-    private final int ROOT_TIMEOUT = 5000;
+    private final int ROOT_TIMEOUT = 10000;
 
     private enum FilterType {
         Blur,
