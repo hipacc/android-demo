@@ -52,7 +52,7 @@ public class MainActivity extends Activity {
         mBtnHipacc = (Button) findViewById(R.id.buttonHIPAcc);
 
         mBitmapIn = BitmapFactory.decodeResource(this.getResources(),
-                R.drawable.lenna);
+                R.drawable.landscape);
         mBitmapOut = Bitmap.createBitmap(mBitmapIn.getWidth(),
                 mBitmapIn.getHeight(), mBitmapIn.getConfig());
 
