@@ -157,16 +157,14 @@ public class MainActivity extends Activity {
                 RootHandler root = new RootHandler(MainActivity.this);
 
                 if (forceCPU.isChecked()) {
-                    root.addCommand("setprop debug.rs.default-CPU-driver 0",
-                            false);
-                    if (root.startAndWait(ROOT_TIMEOUT)) {
+                    root.runCommand("setprop debug.rs.default-CPU-driver 0", 0);
+                    if (root.close(ROOT_TIMEOUT)) {
                         forceCPU.setChecked(false);
                         return true;
                     }
                 } else {
-                    root.addCommand("setprop debug.rs.default-CPU-driver 1",
-                            false);
-                    if (root.startAndWait(ROOT_TIMEOUT)) {
+                    root.runCommand("setprop debug.rs.default-CPU-driver 1", 0);
+                    if (root.close(ROOT_TIMEOUT)) {
                         forceCPU.setChecked(true);
                         return true;
                     }
@@ -182,12 +180,12 @@ public class MainActivity extends Activity {
 
         // Get the initial state for option "Force CPU"
         RootHandler root = new RootHandler(this);
-        int id = root.addCommand("getprop debug.rs.default-CPU-driver", true);
-        if (root.startAndWait(ROOT_TIMEOUT)) {
-            if ("1".equals(root.getReturn(id))) {
-                forceCPU.setChecked(true);
-            }
+        String resp = root.runCommand("getprop debug.rs.default-CPU-driver",
+                ROOT_TIMEOUT);
+        if ("1".equals(resp)) {
+            forceCPU.setChecked(true);
         }
+        root.close(0);
 
         return true;
     }

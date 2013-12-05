@@ -4,8 +4,6 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -17,17 +15,13 @@ import android.widget.Toast;
 class RootHandler {
 
     private final int POLL_INTERVAL = 100;
-    private final int WAIT_OUTPUT = 1000;
 
     private Context mCtx;
     private Process mProc;
     private DataOutputStream mShellIn;
     private BufferedReader mShellOut;
-    private List<String> mReturns;
-    private AsyncTask<Void,Void,Void> mTask;
     private boolean mInitialized = false;
     private boolean mIsFinished = false;
-    private boolean mSuccess = false;
 
     public RootHandler(Context ctx) {
         mCtx = ctx;
@@ -36,106 +30,101 @@ class RootHandler {
             mShellIn = new DataOutputStream(mProc.getOutputStream());
             mShellOut = new BufferedReader(new InputStreamReader(
                     mProc.getInputStream()));
-            mReturns = new ArrayList<String>();
-            mTask = new AsyncTask<Void,Void,Void>() {
-                @Override
-                protected Void doInBackground(Void... params) {
-                    try {
-                        mShellIn.writeBytes("exit\n");
-                        mProc.waitFor();
-                        if (mProc.exitValue() == 0) {
-                            mSuccess = true;
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    return null;
-                }
-            };
             mInitialized = true;
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public int addCommand(String cmd, boolean doReadLine) {
-        if (mInitialized) {
+    public String runCommand(String cmd, long millis) {
+        String response = null;
+
+        if (mInitialized && !mIsFinished) {
             try {
                 mShellIn.writeBytes(cmd + "\n");
-                if (doReadLine) {
-                    AsyncTask<Void, Void, Void> readLine =
-                            new AsyncTask<Void, Void, Void>() {
+                if (millis > 0) {
+                    AsyncTask<Void, Void, String> readTask =
+                            new AsyncTask<Void, Void, String>() {
                         @Override
-                        protected Void doInBackground(Void... params) {
+                        protected String doInBackground(Void... params) {
                             try {
-                                mReturns.add(mShellOut.readLine());
+                                return mShellOut.readLine();
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
                             return null;
                         }
                     };
-                    readLine.execute();
+                    readTask.execute();
                     try {
-                        readLine.get(WAIT_OUTPUT, TimeUnit.MILLISECONDS);
+                        response = readTask.get(millis, TimeUnit.MILLISECONDS);
                     } catch (ExecutionException e) {
                         e.printStackTrace();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     } catch (TimeoutException e) {
-                        readLine.cancel(true);
+                        readTask.cancel(true);
                     }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-            return doReadLine ? mReturns.size()-1 : -1;
-        } else {
-            return -1;
         }
+
+        return response;
     }
 
-    public String getReturn(int id) {
-        if (mInitialized && id >= 0 && id < mReturns.size()) {
-            return mReturns.get(id);
-        } else {
-            return "";
-        }
-    }
+    boolean close(long millis) {
+        boolean success = false;
 
-    boolean startAndWait(long millis) {
         if (mInitialized && !mIsFinished) {
-            //Toast.makeText(mCtx, "Requesting root permissions.",
-            //        Toast.LENGTH_SHORT).show();
+            try {
+                mShellIn.writeBytes("exit\n");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
-            mTask.execute();
+            AsyncTask<Void,Void,Integer> waitTask =
+                    new AsyncTask<Void,Void,Integer>() {
+                @Override
+                protected Integer doInBackground(Void... params) {
+                    try {
+                        mProc.waitFor();
+                        return mProc.exitValue();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    return null;
+                }
+            };
+            waitTask.execute();
 
-            for (long i = 0; i < millis/POLL_INTERVAL; ++i) {
+            long count = 0;
+            do {
                 try {
-                    mTask.get(POLL_INTERVAL, TimeUnit.MILLISECONDS);
+                    success = (waitTask.get(POLL_INTERVAL,
+                            TimeUnit.MILLISECONDS) == 0);
                     mIsFinished = true;
                     break;
                 } catch (InterruptedException e) {
                     e.printStackTrace();
+                    break;
                 } catch (ExecutionException e) {
                     e.printStackTrace();
+                    break;
                 } catch (TimeoutException e) {
+                    ++count;
                 }
-            }
+            } while (count < millis/POLL_INTERVAL);
 
             if (!mIsFinished) {
-                mTask.cancel(true);
+                waitTask.cancel(true);
                 Toast.makeText(mCtx, "Requesting root permissions timed out.",
                         Toast.LENGTH_SHORT).show();
                 mIsFinished = true;
             }
-
-            return mSuccess;
-        } else {
-            return false;
         }
+
+        return success;
     }
 }
