@@ -22,6 +22,7 @@ public class MainActivity extends Activity {
     private enum FilterType {
         Blur,
         Gaussian,
+        Laplace,
         Sobel
     };
 
@@ -71,6 +72,11 @@ public class MainActivity extends Activity {
                             mNaive.runFSGaussian(mBitmapIn, mBitmapOut) :
                             mNaive.runRSGaussian(mBitmapIn, mBitmapOut);
                     break;
+                case Laplace:
+                    time = mRunFilterscript ?
+                            mNaive.runFSLaplace(mBitmapIn, mBitmapOut) :
+                            mNaive.runRSLaplace(mBitmapIn, mBitmapOut);
+                    break;
                 case Sobel:
                     time = mRunFilterscript ?
                             mNaive.runFSSobel(mBitmapIn, mBitmapOut) :
@@ -103,6 +109,11 @@ public class MainActivity extends Activity {
                     time = mRunFilterscript ?
                             mHipacc.runFSGaussian(mBitmapIn, mBitmapOut) :
                             mHipacc.runRSGaussian(mBitmapIn, mBitmapOut);
+                    break;
+                case Laplace:
+                    time = mRunFilterscript ?
+                            mHipacc.runFSLaplace(mBitmapIn, mBitmapOut) :
+                            mHipacc.runRSLaplace(mBitmapIn, mBitmapOut);
                     break;
                 case Sobel:
                     time = mRunFilterscript ?

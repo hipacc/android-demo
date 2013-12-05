@@ -166,7 +166,87 @@ public class NaiveFilters {
 
         return (int)time;
     }
-    
+
+    public int runRSLaplace(Bitmap in, Bitmap out) {
+        long time = -1;
+
+        if (init(in, out)) {
+            Type.Builder maskType = new Type.Builder(mRS, Element.I32(mRS));
+            maskType.setX(5);
+            maskType.setY(5);
+
+            Allocation maskAllocation =
+                    Allocation.createTyped(mRS, maskType.create());
+
+            maskAllocation.copyFrom(new int[]{
+                    1,   1,   1,   1,   1,
+                    1,   1,   1,   1,   1,
+                    1,   1, -24,   1,   1,
+                    1,   1,   1,   1,   1,
+                    1,   1,   1,   1,   1
+            });
+
+            ScriptC_rslaplace script = new ScriptC_rslaplace(mRS,
+                    mCtx.getResources(), R.raw.rslaplace);
+            script.set_in(mInAllocation);
+            script.set_mask(maskAllocation);
+            script.set_width(in.getWidth());
+            script.set_height(in.getHeight());
+
+            mRS.finish();
+            time = System.nanoTime();
+            script.forEach_root(mOutAllocation);
+
+            mRS.finish();
+            time = (System.nanoTime() - time) / 1000000;
+
+            mOutAllocation.copyTo(out);
+            mRS.finish();
+        }
+
+        return (int)time;
+    }
+
+    public int runFSLaplace(Bitmap in, Bitmap out) {
+        long time = -1;
+
+        if (init(in, out)) {
+            Type.Builder maskType = new Type.Builder(mRS, Element.I32(mRS));
+            maskType.setX(5);
+            maskType.setY(5);
+
+            Allocation maskAllocation =
+                    Allocation.createTyped(mRS, maskType.create());
+
+            maskAllocation.copyFrom(new int[]{
+                    1,   1,   1,   1,   1,
+                    1,   1,   1,   1,   1,
+                    1,   1, -24,   1,   1,
+                    1,   1,   1,   1,   1,
+                    1,   1,   1,   1,   1
+            });
+
+            ScriptC_fslaplace script = new ScriptC_fslaplace(mRS,
+                    mCtx.getResources(), R.raw.fslaplace);
+            script.set_in(mInAllocation);
+            script.set_mask(maskAllocation);
+            script.set_width(in.getWidth());
+            script.set_height(in.getHeight());
+
+            mRS.finish();
+            time = System.nanoTime();
+            script.forEach_root(mOutAllocation);
+
+            mRS.finish();
+            time = (System.nanoTime() - time) / 1000000;
+
+            mOutAllocation.copyTo(out);
+            mRS.finish();
+        }
+
+        return (int)time;
+    }
+
     public int runRSSobel(Bitmap in, Bitmap out) {
         long time = -1;
         long timeKernel;
@@ -251,7 +331,7 @@ public class NaiveFilters {
 
         return (int)time;
     }
-    
+
     public int runFSSobel(Bitmap in, Bitmap out) {
         long time = -1;
         long timeKernel;

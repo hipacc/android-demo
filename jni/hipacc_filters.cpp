@@ -97,5 +97,6 @@ CREATE_NAME(run ## NAME)(JNIEnv *env, jobject thiz, jobject in, jobject out) { \
 // Create filters
 CREATE_FILTER(Blur)
 CREATE_FILTER(Gaussian)
+CREATE_FILTER(Laplace)
 CREATE_FILTER(Sobel)
 
