@@ -23,7 +23,8 @@ public class MainActivity extends Activity {
         Blur,
         Gaussian,
         Laplace,
-        Sobel
+        Sobel,
+        Harris
     };
 
     private FilterType mType;
@@ -119,6 +120,11 @@ public class MainActivity extends Activity {
                     time = mRunFilterscript ?
                             mHipacc.runFSSobel(mBitmapIn, mBitmapOut) :
                             mHipacc.runRSSobel(mBitmapIn, mBitmapOut);
+                    break;
+                case Harris:
+                    time = mRunFilterscript ?
+                            mHipacc.runFSHarris(mBitmapIn, mBitmapOut) :
+                            mHipacc.runRSHarris(mBitmapIn, mBitmapOut);
                     break;
                 default:
                     time = -1;

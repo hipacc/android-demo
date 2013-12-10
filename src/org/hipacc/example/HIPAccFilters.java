@@ -16,4 +16,6 @@ public class HIPAccFilters {
     public native int runFSLaplace(Bitmap in, Bitmap out);
     public native int runRSSobel(Bitmap in, Bitmap out);
     public native int runFSSobel(Bitmap in, Bitmap out);
+    public native int runRSHarris(Bitmap in, Bitmap out);
+    public native int runFSHarris(Bitmap in, Bitmap out);
 }

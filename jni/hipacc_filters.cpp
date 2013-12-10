@@ -64,7 +64,7 @@ void deinit(JNIEnv *env, jobject in, jobject out) {
 
 // Creates wrapper function to call filter from JNI
 #define CREATE_FUNCTION(NAME) \
-extern int run ## NAME(int w, int h, uchar4* i, uchar4* o); \
+extern int run ## NAME(int w, int h, uchar4 *in, uchar4 *out); \
  \
 extern "C" { \
 JNIEXPORT int JNICALL \
@@ -99,4 +99,5 @@ CREATE_FILTER(Blur)
 CREATE_FILTER(Gaussian)
 CREATE_FILTER(Laplace)
 CREATE_FILTER(Sobel)
+CREATE_FILTER(Harris)
 

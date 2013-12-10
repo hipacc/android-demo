@@ -6,9 +6,10 @@
     <string name="hello_world">Hello world!</string>
     <string-array name="filters_array">
         <item>Blur</item>
-        <item>Gaussian</item>
+        <item>Gaussian Blur</item>
         <item>Laplace</item>
         <item>Sobel</item>
+        <item>Harris Corner</item>
     </string-array>
 
 </resources>
