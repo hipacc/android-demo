@@ -1,7 +1,7 @@
 #pragma version(1)
 #pragma rs java_package_name(org.hipacc.example)
 
-rs_allocation in;
+rs_allocation input;
 rs_allocation mask;
 
 uint32_t width;
@@ -19,9 +19,9 @@ float __attribute__((kernel)) root(uint32_t x, uint32_t y) {
         for (int xi = 0; xi < size_x; ++xi) {
             int xc = x - offset_x + xi;
             xc = min(max(xc, 0), (int)width-1);
-            sum += rsGetElementAt_float(in, xc, yc) *
+            sum += rsGetElementAt_float(input, xc, yc) *
                     rsGetElementAt_float(mask, xi, yi);
         }
     }
-    return sum * sum;
+    return sum;
 }

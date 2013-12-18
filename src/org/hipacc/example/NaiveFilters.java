@@ -398,10 +398,6 @@ public class NaiveFilters {
                     Allocation.createTyped(mRS, derivType.create());
             Allocation derivYAllocation =
                     Allocation.createTyped(mRS, derivType.create());
-            Allocation derivXYAllocation =
-                    Allocation.createTyped(mRS, derivType.create());
-            Allocation derivTmpAllocation =
-                    Allocation.createTyped(mRS, derivType.create());
 
             Allocation maskDerivXAllocation =
                     Allocation.createTyped(mRS, maskType.create());
@@ -437,92 +433,42 @@ public class NaiveFilters {
             grayAllocation.copy1DRangeFrom(0, in.getWidth() * in.getHeight(),
                     bufGray.array());
 
-            ScriptC_rsharrisderiv1d deriv1d = new ScriptC_rsharrisderiv1d(mRS,
-                    mCtx.getResources(), R.raw.rsharrisderiv1d);
-            deriv1d.set_in(grayAllocation);
-            deriv1d.set_width(in.getWidth());
-            deriv1d.set_height(in.getHeight());
-
-            ScriptC_rsharrisderiv2d deriv2d = new ScriptC_rsharrisderiv2d(mRS,
-                    mCtx.getResources(), R.raw.rsharrisderiv2d);
-            deriv2d.set_in(grayAllocation);
-            deriv2d.set_width(in.getWidth());
-            deriv2d.set_height(in.getHeight());
-            deriv2d.set_mask1(maskDerivXAllocation);
-            deriv2d.set_mask2(maskDerivYAllocation);
-
-            ScriptC_rsharrisgaussian gaussian = new ScriptC_rsharrisgaussian(mRS,
-                    mCtx.getResources(), R.raw.rsharrisgaussian);
-            gaussian.set_width(in.getWidth());
-            gaussian.set_height(in.getHeight());
-            gaussian.set_mask(maskGaussAllocation);
+            ScriptC_rsharrisderiv deriv = new ScriptC_rsharrisderiv(mRS,
+                    mCtx.getResources(), R.raw.rsharrisderiv);
+            deriv.set_input(grayAllocation);
+            deriv.set_width(in.getWidth());
+            deriv.set_height(in.getHeight());
 
             ScriptC_rsharris harris = new ScriptC_rsharris(mRS,
                     mCtx.getResources(), R.raw.rsharris);
-            harris.set_dx(derivTmpAllocation);
-            harris.set_dy(derivXAllocation);
-            harris.set_dxy(derivYAllocation);
+            harris.set_derivX(derivXAllocation);
+            harris.set_derivY(derivYAllocation);
+            harris.set_mask(maskGaussAllocation);
+            harris.set_width(in.getWidth());
+            harris.set_height(in.getHeight());
             harris.set_k(k);
 
             // First run
-            deriv1d.set_mask(maskDerivXAllocation);
+            deriv.set_mask(maskDerivXAllocation);
 
             mRS.finish();
             timeKernel = System.nanoTime();
-            deriv1d.forEach_root(derivXAllocation);
+            deriv.forEach_root(derivXAllocation);
 
             mRS.finish();
             time = (System.nanoTime() - timeKernel) / 1000000;
             
             // Second run
-            deriv1d.set_mask(maskDerivYAllocation);
+            deriv.set_mask(maskDerivYAllocation);
 
             mRS.finish();
             timeKernel = System.nanoTime();
-            deriv1d.forEach_root(derivYAllocation);
+            deriv.forEach_root(derivYAllocation);
 
             mRS.finish();
             time += (System.nanoTime() - timeKernel) / 1000000;
 
             // Third run
-            mRS.finish();
-            timeKernel = System.nanoTime();
-            deriv2d.forEach_root(derivXYAllocation);
-
-            mRS.finish();
-            time += (System.nanoTime() - timeKernel) / 1000000;
-
-            // Forth run
-            gaussian.set_in(derivXAllocation);
-
-            mRS.finish();
-            timeKernel = System.nanoTime();
-            gaussian.forEach_root(derivTmpAllocation);
-
-            mRS.finish();
-            time += (System.nanoTime() - timeKernel) / 1000000;
-
-            // Fifth run
-            gaussian.set_in(derivYAllocation);
-
-            mRS.finish();
-            timeKernel = System.nanoTime();
-            gaussian.forEach_root(derivXAllocation);
-
-            mRS.finish();
-            time += (System.nanoTime() - timeKernel) / 1000000;
-
-            // Sixth run
-            gaussian.set_in(derivXYAllocation);
-
-            mRS.finish();
-            timeKernel = System.nanoTime();
-            gaussian.forEach_root(derivYAllocation);
-
-            mRS.finish();
-            time += (System.nanoTime() - timeKernel) / 1000000;
-
-            // Seventh run
             mRS.finish();
             timeKernel = System.nanoTime();
             harris.forEach_root(grayAllocation);
@@ -560,7 +506,7 @@ public class NaiveFilters {
 
         return (int)time;
     }
-    
+
     public int runFSHarris(Bitmap in, Bitmap out) {
         long time = -1;
         long timeKernel;
@@ -597,10 +543,6 @@ public class NaiveFilters {
                     Allocation.createTyped(mRS, derivType.create());
             Allocation derivYAllocation =
                     Allocation.createTyped(mRS, derivType.create());
-            Allocation derivXYAllocation =
-                    Allocation.createTyped(mRS, derivType.create());
-            Allocation derivTmpAllocation =
-                    Allocation.createTyped(mRS, derivType.create());
 
             Allocation maskDerivXAllocation =
                     Allocation.createTyped(mRS, maskType.create());
@@ -636,92 +578,42 @@ public class NaiveFilters {
             grayAllocation.copy1DRangeFrom(0, in.getWidth() * in.getHeight(),
                     bufGray.array());
 
-            ScriptC_fsharrisderiv1d deriv1d = new ScriptC_fsharrisderiv1d(mRS,
-                    mCtx.getResources(), R.raw.fsharrisderiv1d);
-            deriv1d.set_in(grayAllocation);
-            deriv1d.set_width(in.getWidth());
-            deriv1d.set_height(in.getHeight());
-
-            ScriptC_fsharrisderiv2d deriv2d = new ScriptC_fsharrisderiv2d(mRS,
-                    mCtx.getResources(), R.raw.fsharrisderiv2d);
-            deriv2d.set_in(grayAllocation);
-            deriv2d.set_width(in.getWidth());
-            deriv2d.set_height(in.getHeight());
-            deriv2d.set_mask1(maskDerivXAllocation);
-            deriv2d.set_mask2(maskDerivYAllocation);
-
-            ScriptC_fsharrisgaussian gaussian = new ScriptC_fsharrisgaussian(mRS,
-                    mCtx.getResources(), R.raw.fsharrisgaussian);
-            gaussian.set_width(in.getWidth());
-            gaussian.set_height(in.getHeight());
-            gaussian.set_mask(maskGaussAllocation);
+            ScriptC_fsharrisderiv deriv = new ScriptC_fsharrisderiv(mRS,
+                    mCtx.getResources(), R.raw.fsharrisderiv);
+            deriv.set_input(grayAllocation);
+            deriv.set_width(in.getWidth());
+            deriv.set_height(in.getHeight());
 
             ScriptC_fsharris harris = new ScriptC_fsharris(mRS,
                     mCtx.getResources(), R.raw.fsharris);
-            harris.set_dx(derivTmpAllocation);
-            harris.set_dy(derivXAllocation);
-            harris.set_dxy(derivYAllocation);
+            harris.set_derivX(derivXAllocation);
+            harris.set_derivY(derivYAllocation);
+            harris.set_mask(maskGaussAllocation);
+            harris.set_width(in.getWidth());
+            harris.set_height(in.getHeight());
             harris.set_k(k);
 
             // First run
-            deriv1d.set_mask(maskDerivXAllocation);
+            deriv.set_mask(maskDerivXAllocation);
 
             mRS.finish();
             timeKernel = System.nanoTime();
-            deriv1d.forEach_root(derivXAllocation);
+            deriv.forEach_root(derivXAllocation);
 
             mRS.finish();
             time = (System.nanoTime() - timeKernel) / 1000000;
             
             // Second run
-            deriv1d.set_mask(maskDerivYAllocation);
+            deriv.set_mask(maskDerivYAllocation);
 
             mRS.finish();
             timeKernel = System.nanoTime();
-            deriv1d.forEach_root(derivYAllocation);
+            deriv.forEach_root(derivYAllocation);
 
             mRS.finish();
             time += (System.nanoTime() - timeKernel) / 1000000;
 
             // Third run
-            mRS.finish();
-            timeKernel = System.nanoTime();
-            deriv2d.forEach_root(derivXYAllocation);
-
-            mRS.finish();
-            time += (System.nanoTime() - timeKernel) / 1000000;
-
-            // Forth run
-            gaussian.set_in(derivXAllocation);
-
-            mRS.finish();
-            timeKernel = System.nanoTime();
-            gaussian.forEach_root(derivTmpAllocation);
-
-            mRS.finish();
-            time += (System.nanoTime() - timeKernel) / 1000000;
-
-            // Fifth run
-            gaussian.set_in(derivYAllocation);
-
-            mRS.finish();
-            timeKernel = System.nanoTime();
-            gaussian.forEach_root(derivXAllocation);
-
-            mRS.finish();
-            time += (System.nanoTime() - timeKernel) / 1000000;
-
-            // Sixth run
-            gaussian.set_in(derivXYAllocation);
-
-            mRS.finish();
-            timeKernel = System.nanoTime();
-            gaussian.forEach_root(derivYAllocation);
-
-            mRS.finish();
-            time += (System.nanoTime() - timeKernel) / 1000000;
-
-            // Seventh run
             mRS.finish();
             timeKernel = System.nanoTime();
             harris.forEach_root(grayAllocation);

@@ -42,21 +42,17 @@ using namespace hipacc;
 #define NO_SEP
 
 #ifdef NO_SEP
-class HarrisDeriv1D : public Kernel<float> {
+class HarrisDeriv : public Kernel<float> {
   private:
     Accessor<uchar> &Input;
     Mask<float> &cMask;
-    const int size_x, size_y;
 
   public:
-    HarrisDeriv1D(IterationSpace<float> &IS,
-                  Accessor<uchar> &Input, Mask<float> &cMask,
-                  const int size_x, const int size_y)
+    HarrisDeriv(IterationSpace<float> &IS,
+                Accessor<uchar> &Input, Mask<float> &cMask)
           : Kernel(IS),
             Input(Input),
-            cMask(cMask),
-            size_x(size_x),
-            size_y(size_y) {
+            cMask(cMask) {
       addAccessor(&Input);
     }
 
@@ -65,7 +61,45 @@ class HarrisDeriv1D : public Kernel<float> {
       sum += convolve(cMask, HipaccSUM, [&] () -> float {
           return Input(cMask) * cMask();
       });
-      output() = sum*sum;
+      output() = sum;
+    }
+};
+class Harris : public Kernel<float> {
+  private:
+    Accessor<float> &Dx;
+    Accessor<float> &Dy;
+    Domain &cDom;
+    Mask<float> &cMask;
+    float k;
+
+  public:
+    Harris(IterationSpace<float> &IS,
+           Accessor<float> &Dx, Accessor<float> &Dy,
+           Domain &cDom, Mask<float> &cMask,
+           float k)
+          : Kernel(IS),
+            Dx(Dx),
+            Dy(Dy),
+            cDom(cDom),
+            cMask(cMask),
+            k(k) {
+      addAccessor(&Dx);
+      addAccessor(&Dy);
+    }
+
+    void kernel() {
+      float sumX = 0.0f;
+      float sumY = 0.0f;
+      float sumXY = 0.0f;
+      iterate(cDom, [&] () {
+          float dx = Dx(cDom);
+          float dy = Dy(cDom);
+          sumX += cMask(cDom) * dx * dx;
+          sumY += cMask(cDom) * dy * dy;
+          sumXY += cMask(cDom) * dx * dy;
+      });
+      output() = ((sumX * sumY) - (sumXY * sumXY))      /* det   */
+                 - (k * (sumX + sumY) * (sumX + sumY)); /* trace */
     }
 };
 #else
@@ -119,7 +153,6 @@ class HarrisDeriv1DRow : public Kernel<float> {
       output() = sum*sum;
     }
 };
-#endif
 
 class HarrisDeriv2D : public Kernel<float> {
   private:
@@ -150,31 +183,6 @@ class HarrisDeriv2D : public Kernel<float> {
       output() = sum1 * sum2;
     }
 };
-
-#ifdef NO_SEP
-class HarrisGaussian : public Kernel<float> {
-private:
-    Accessor<float> &Input;
-    Mask<float> &cMask;
-    const int size;
-
-  public:
-    HarrisGaussian(IterationSpace<float> &IS, Accessor<float> &Input,
-                   Mask<float> &cMask, const int size)
-        : Kernel(IS),
-          Input(Input),
-          cMask(cMask),
-          size(size) {
-      addAccessor(&Input);
-    }
-
-    void kernel() {
-      output() = convolve(cMask, HipaccSUM, [&] () -> float {
-          return cMask() * Input(cMask);
-      });
-    }
-};
-#else
 class HarrisGaussianRow : public Kernel<float> {
   private:
     Accessor<float> &Input;
@@ -220,9 +228,7 @@ class HarrisGaussianCol : public Kernel<float> {
       }) + 0.5f;
     }
 };
-#endif
-
-class HarrisCorner : public Kernel<float> {
+class Harris : public Kernel<float> {
   private:
     Accessor<float> &Dx;
     Accessor<float> &Dy;
@@ -230,9 +236,9 @@ class HarrisCorner : public Kernel<float> {
     float k;
 
   public:
-    HarrisCorner(IterationSpace<float> &IS,
-                 Accessor<float> &Dx, Accessor<float> &Dy, Accessor<float> &Dxy,
-                 float k)
+    Harris(IterationSpace<float> &IS,
+           Accessor<float> &Dx, Accessor<float> &Dy, Accessor<float> &Dxy,
+           float k)
           : Kernel(IS),
             Dx(Dx),
             Dy(Dy),
@@ -251,6 +257,7 @@ class HarrisCorner : public Kernel<float> {
                  - (k * (x + y) * (x + y)); /* trace */
     }
 };
+#endif
 
 // Main function
 #ifdef HIPACC
@@ -279,8 +286,10 @@ int runFSHarris(int w, int h, uchar4 *in, uchar4 *out) {
     Image<float> RES(width, height);
     Image<float> DX(width, height);
     Image<float> DY(width, height);
+#ifndef NO_SEP
     Image<float> DXY(width, height);
     Image<float> TMP(width, height);
+#endif
 
     // only filter kernel sizes 3x3, 5x5, and 7x7 implemented
     if (size_x != size_y || !(size_x == 3 || size_x == 5 || size_x == 7)) {
@@ -372,6 +381,7 @@ int runFSHarris(int w, int h, uchar4 *in, uchar4 *out) {
 #endif
 
 #ifdef NO_SEP
+    Domain D(size_x, size_y);
     Mask<float> G(size_x, size_y);
     G = filter_xy;
 #else
@@ -384,8 +394,10 @@ int runFSHarris(int w, int h, uchar4 *in, uchar4 *out) {
     IterationSpace<float> IsRes(RES);
     IterationSpace<float> IsDx(DX);
     IterationSpace<float> IsDy(DY);
+#ifndef NO_SEP
     IterationSpace<float> IsDxy(DXY);
     IterationSpace<float> IsTmp(TMP);
+#endif
 
     IN = filter_in;
     RES = result;
@@ -394,12 +406,20 @@ int runFSHarris(int w, int h, uchar4 *in, uchar4 *out) {
     Accessor<uchar> AccInClamp(BcInClamp);
 
 #ifdef NO_SEP
-    HarrisDeriv1D d1x(IsDx, AccInClamp, MX, 3, 3);
-    d1x.execute();
+    HarrisDeriv dx(IsDx, AccInClamp, MX);
+    dx.execute();
     timing = hipaccGetLastKernelTiming();
 
-    HarrisDeriv1D d1y(IsDy, AccInClamp, MY, 3, 3);
-    d1y.execute();
+    HarrisDeriv dy(IsDy, AccInClamp, MY);
+    dy.execute();
+    timing += hipaccGetLastKernelTiming();
+
+    BoundaryCondition<float> BcDxClamp(DX, size_x, size_y, BOUNDARY_CLAMP);
+    Accessor<float> AccDx(BcDxClamp);
+    BoundaryCondition<float> BcDyClamp(DY, size_x, size_y, BOUNDARY_CLAMP);
+    Accessor<float> AccDy(BcDyClamp);
+    Harris filter(IsRes, AccDx, AccDy, D, G, k);
+    filter.execute();
     timing += hipaccGetLastKernelTiming();
 #else
     BoundaryCondition<float> BcTmpDcClamp(TMP, 1, 3, BOUNDARY_CLAMP);
@@ -420,36 +440,12 @@ int runFSHarris(int w, int h, uchar4 *in, uchar4 *out) {
     HarrisDeriv1DRow d1yr(IsDy, AccTmpDcClamp, MYY, 3);
     d1yr.execute();
     timing += hipaccGetLastKernelTiming();
-#endif
 
     Domain dom(3, 3);
     HarrisDeriv2D d2(IsDxy, AccInClamp, dom, MX, MY);
     d2.execute();
     timing += hipaccGetLastKernelTiming();
 
-#ifdef NO_SEP
-    BoundaryCondition<float> BcInClampDx(DX, size_x, size_y, BOUNDARY_CLAMP);
-    Accessor<float> AccInClampDx(BcInClampDx);
-    HarrisGaussian gx(IsTmp, AccInClampDx, G, size_x);
-    gx.execute();
-    timing += hipaccGetLastKernelTiming();
-
-    BoundaryCondition<float> BcInClampDy(DY, size_x, size_y, BOUNDARY_CLAMP);
-    Accessor<float> AccInClampDy(BcInClampDy);
-    HarrisGaussian gy(IsDx, AccInClampDy, G, size_x);
-    gy.execute();
-    timing += hipaccGetLastKernelTiming();
-
-    BoundaryCondition<float> BcInClampDxy(DXY, size_x, size_y, BOUNDARY_CLAMP);
-    Accessor<float> AccInClampDxy(BcInClampDxy);
-    HarrisGaussian gxy(IsDy, AccInClampDxy, G, size_x);
-    gxy.execute();
-    timing += hipaccGetLastKernelTiming();
-
-    Accessor<float> AccDx(TMP);
-    Accessor<float> AccDy(DX);
-    Accessor<float> AccDxy(DY);
-#else
     BoundaryCondition<float> BcTmpClamp(TMP, 1, size_y, BOUNDARY_CLAMP);
     Accessor<float> AccTmpClamp(BcTmpClamp);
 
@@ -480,14 +476,14 @@ int runFSHarris(int w, int h, uchar4 *in, uchar4 *out) {
     gxyc.execute();
     timing += hipaccGetLastKernelTiming();
 
+    Accessor<float> AccDxy(DXY);
     Accessor<float> AccDx(DX);
     Accessor<float> AccDy(DY);
-    Accessor<float> AccDxy(DXY);
-#endif
 
-    HarrisCorner filter(IsRes, AccDx, AccDy, AccDxy, k);
+    Harris filter(IsRes, AccDx, AccDy, AccDxy, k);
     filter.execute();
     timing += hipaccGetLastKernelTiming();
+#endif
 
     // get results
     result = RES.getData();

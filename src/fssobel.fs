@@ -22,8 +22,9 @@ uchar4 __attribute__((kernel)) root(uint32_t x, uint32_t y) {
             int xc = x - offset_x + xi;
             xc = min(max(xc, 0), (int)width-1);
             float4 in = convert_float4(rsGetElementAt_uchar4(input, xc, yc));
-            sumX += (float)rsGetElementAt_int(maskX, xi, yi) * in;
-            sumY += (float)rsGetElementAt_int(maskY, xi, yi) * in;
+            float maskVal = (float)rsGetElementAt_int(maskX, xi, yi);
+            sumX += maskVal * in;
+            sumY += maskVal * in;
         }
     }
 
