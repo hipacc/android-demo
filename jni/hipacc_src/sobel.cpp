@@ -49,26 +49,39 @@ using namespace hipacc::math;
 #endif
 
 #ifdef NO_SEP
-class Sobel : public Kernel<short4> {
+class Sobel : public Kernel<uchar4> {
     private:
         Accessor<uchar4> &Input;
-        Mask<int> &cMask;
+        Domain &cDom;
+        Mask<int> &cMaskX;
+        Mask<int> &cMaskY;
         const int size;
 
     public:
-        Sobel(IterationSpace<short4> &IS, Accessor<uchar4>
-                &Input, Mask<int> &cMask, const int size) :
+        Sobel(IterationSpace<uchar4> &IS, Accessor<uchar4>
+                &Input, Domain &cDom, Mask<int> &cMaskX, Mask<int> &cMaskY, const int size) :
             Kernel(IS),
             Input(Input),
-            cMask(cMask),
+            cDom(cDom),
+            cMaskX(cMaskX),
+            cMaskY(cMaskY),
             size(size)
         { addAccessor(&Input); }
 
         void kernel() {
-            int4 sum = convolve(cMask, HipaccSUM, [&] () -> int4 {
-                    return cMask() * convert_int4(Input(cMask));
-                    });
-            output() = convert_short4(sum);
+            float4 sumX = 0.0f;
+            float4 sumY = 0.0f;
+            iterate(cDom, [&] () {
+                float4 in = convert_float4(Input(cDom));
+                sumX += (float)cMaskX(cDom) * in;
+                sumY += (float)cMaskY(cDom) * in;
+            });
+
+            int4 out = convert_int4(sqrtf((sumX * sumX) + (sumY * sumY)));
+            out = min(out, 255);
+            out = max(out, 0);
+            out.w = 255;
+            output() = convert_uchar4(out);
         }
 };
 #else
@@ -116,8 +129,6 @@ class SobelColumn : public Kernel<short4> {
             output() = convert_short4(sum);
         }
 };
-#endif
-
 class SobelCombine : public Kernel<uchar4> {
     private:
         Accessor<short4> &Input1;
@@ -149,6 +160,7 @@ class SobelCombine : public Kernel<uchar4> {
             output() = convert_uchar4(out);
         }
 };
+#endif
 
 // Main function
 #ifdef HIPACC
@@ -276,43 +288,47 @@ int runFSSobel(int w, int h, uchar4 *in, uchar4 *out) {
     // input and output image of width x height pixels
     Image<uchar4> IN(width, height);
     Image<uchar4> OUT(width, height);
+#ifndef NO_SEP
     Image<short4> DERIV1(width, height);
     Image<short4> DERIV2(width, height);
     Image<short4> TMP(width, height);
+#endif
 
     // filter mask
     Mask<int> MX(size_x, size_y);
+    Mask<int> MY(size_x, size_y);
+    MX = mask_x;
+    MY = mask_y;
+#ifndef NO_SEP
     Mask<int> MXX(size_x, 1);
     Mask<int> MXY(1, size_y);
-    Mask<int> MY(size_x, size_y);
     Mask<int> MYX(size_x, 1);
     Mask<int> MYY(1, size_y);
-    MX = mask_x;
     MXX = mask_xx;
     MXY = mask_xy;
-    MY = mask_y;
     MYX = mask_yx;
     MYY = mask_yy;
+#else
+    Domain D(size_x, size_y);
+#endif
 
     IterationSpace<uchar4> IsOut(OUT);
+#ifndef NO_SEP
     IterationSpace<short4> IsDeriv1(DERIV1);
     IterationSpace<short4> IsDeriv2(DERIV2);
     IterationSpace<short4> IsTmp(TMP);
+#endif
 
     IN = host_in;
     OUT = host_out;
 
-    // BOUNDARY_CLAMP
 #ifdef NO_SEP
     BoundaryCondition<uchar4> BcInClamp(IN, size_x, size_y, BOUNDARY_CLAMP);
     Accessor<uchar4> AccInClamp(BcInClamp);
-    Sobel derivx(IsDeriv1, AccInClamp, MX, size_x);
-    Sobel derivy(IsDeriv2, AccInClamp, MY, size_x);
+    Sobel filter(IsOut, AccInClamp, D, MX, MY, size_x);
 
-    derivx.execute();
+    filter.execute();
     timing = hipaccGetLastKernelTiming();
-    derivy.execute();
-    timing += hipaccGetLastKernelTiming();
 #else
     BoundaryCondition<uchar4> BcInClamp(IN, size_x, 1, BOUNDARY_CLAMP);
     Accessor<uchar4> AccInClamp(BcInClamp);
@@ -334,7 +350,6 @@ int runFSSobel(int w, int h, uchar4 *in, uchar4 *out) {
     timing += hipaccGetLastKernelTiming();
     derivy2.execute();
     timing += hipaccGetLastKernelTiming();
-#endif
 
     Accessor<short4> AccDeriv1(DERIV1);
     Accessor<short4> AccDeriv2(DERIV2);
@@ -342,6 +357,7 @@ int runFSSobel(int w, int h, uchar4 *in, uchar4 *out) {
 
     comb.execute();
     timing += hipaccGetLastKernelTiming();
+#endif
 
     // get results
     host_out = OUT.getData();

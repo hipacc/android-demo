@@ -52,7 +52,7 @@ public class NaiveFilters {
         if (init(in, out, true)) {
             ScriptC_rsblur script = new ScriptC_rsblur(mRS, mCtx.getResources(),
                     R.raw.rsblur);
-            script.set_in(mInAllocation);
+            script.set_input(mInAllocation);
             script.set_width(in.getWidth());
             script.set_height(in.getHeight());
 
@@ -76,7 +76,7 @@ public class NaiveFilters {
         if (init(in, out, true)) {
             ScriptC_fsblur script = new ScriptC_fsblur(mRS, mCtx.getResources(),
                     R.raw.fsblur);
-            script.set_in(mInAllocation);
+            script.set_input(mInAllocation);
             script.set_width(in.getWidth());
             script.set_height(in.getHeight());
 
@@ -115,7 +115,7 @@ public class NaiveFilters {
 
             ScriptC_rsgaussian script = new ScriptC_rsgaussian(mRS,
                     mCtx.getResources(), R.raw.rsgaussian);
-            script.set_in(mInAllocation);
+            script.set_input(mInAllocation);
             script.set_mask(maskAllocation);
             script.set_width(in.getWidth());
             script.set_height(in.getHeight());
@@ -155,7 +155,7 @@ public class NaiveFilters {
 
             ScriptC_fsgaussian script = new ScriptC_fsgaussian(mRS,
                     mCtx.getResources(), R.raw.fsgaussian);
-            script.set_in(mInAllocation);
+            script.set_input(mInAllocation);
             script.set_mask(maskAllocation);
             script.set_width(in.getWidth());
             script.set_height(in.getHeight());
@@ -195,7 +195,7 @@ public class NaiveFilters {
 
             ScriptC_rslaplace script = new ScriptC_rslaplace(mRS,
                     mCtx.getResources(), R.raw.rslaplace);
-            script.set_in(mInAllocation);
+            script.set_input(mInAllocation);
             script.set_mask(maskAllocation);
             script.set_width(in.getWidth());
             script.set_height(in.getHeight());
@@ -235,7 +235,7 @@ public class NaiveFilters {
 
             ScriptC_fslaplace script = new ScriptC_fslaplace(mRS,
                     mCtx.getResources(), R.raw.fslaplace);
-            script.set_in(mInAllocation);
+            script.set_input(mInAllocation);
             script.set_mask(maskAllocation);
             script.set_width(in.getWidth());
             script.set_height(in.getHeight());
@@ -263,10 +263,6 @@ public class NaiveFilters {
             maskType.setX(5);
             maskType.setY(5);
 
-            Type.Builder derivType = new Type.Builder(mRS, Element.I16_4(mRS));
-            derivType.setX(in.getWidth());
-            derivType.setY(in.getHeight());
-
             Allocation maskXAllocation =
                     Allocation.createTyped(mRS, maskType.create());
             Allocation maskYAllocation =
@@ -288,46 +284,17 @@ public class NaiveFilters {
                      1,  4,  6,   4,  1
             });
 
-            Allocation derivXAllocation =
-                    Allocation.createTyped(mRS, derivType.create());
-            Allocation derivYAllocation =
-                    Allocation.createTyped(mRS, derivType.create());
-
-            ScriptC_rssobelderiv deriv = new ScriptC_rssobelderiv(mRS,
-                    mCtx.getResources(), R.raw.rssobelderiv);
-            deriv.set_in(mInAllocation);
-            deriv.set_width(in.getWidth());
-            deriv.set_height(in.getHeight());
-
-            ScriptC_rssobelcombine combine = new ScriptC_rssobelcombine(mRS,
-                    mCtx.getResources(), R.raw.rssobelcombine);
-            combine.set_in1(derivXAllocation);
-            combine.set_in2(derivYAllocation);
-
-            // First run: Derivate X
-            deriv.set_mask(maskXAllocation);
-            
-            mRS.finish();
-            timeKernel = System.nanoTime();
-            deriv.forEach_root(derivXAllocation);
-
-            mRS.finish();
-            time = (System.nanoTime() - timeKernel) / 1000000;
-
-            // Second run: Derivate Y
-            deriv.set_mask(maskYAllocation);
+            ScriptC_rssobel sobel = new ScriptC_rssobel(mRS,
+                    mCtx.getResources(), R.raw.rssobel);
+            sobel.set_input(mInAllocation);
+            sobel.set_maskX(maskXAllocation);
+            sobel.set_maskY(maskYAllocation);
+            sobel.set_width(in.getWidth());
+            sobel.set_height(in.getHeight());
 
             mRS.finish();
             timeKernel = System.nanoTime();
-            deriv.forEach_root(derivYAllocation);
-
-            mRS.finish();
-            time += (System.nanoTime() - timeKernel) / 1000000;
-
-            // Third run: Combine
-            mRS.finish();
-            timeKernel = System.nanoTime();
-            combine.forEach_root(mOutAllocation);
+            sobel.forEach_root(mOutAllocation);
 
             mRS.finish();
             time += (System.nanoTime() - timeKernel) / 1000000;
@@ -348,10 +315,6 @@ public class NaiveFilters {
             maskType.setX(5);
             maskType.setY(5);
 
-            Type.Builder derivType = new Type.Builder(mRS, Element.I16_4(mRS));
-            derivType.setX(in.getWidth());
-            derivType.setY(in.getHeight());
-
             Allocation maskXAllocation =
                     Allocation.createTyped(mRS, maskType.create());
             Allocation maskYAllocation =
@@ -373,46 +336,17 @@ public class NaiveFilters {
                      1,  4,  6,   4,  1
             });
 
-            Allocation derivXAllocation =
-                    Allocation.createTyped(mRS, derivType.create());
-            Allocation derivYAllocation =
-                    Allocation.createTyped(mRS, derivType.create());
-
-            ScriptC_fssobelderiv deriv = new ScriptC_fssobelderiv(mRS,
-                    mCtx.getResources(), R.raw.fssobelderiv);
-            deriv.set_in(mInAllocation);
-            deriv.set_width(in.getWidth());
-            deriv.set_height(in.getHeight());
-
-            ScriptC_fssobelcombine combine = new ScriptC_fssobelcombine(mRS,
-                    mCtx.getResources(), R.raw.fssobelcombine);
-            combine.set_in1(derivXAllocation);
-            combine.set_in2(derivYAllocation);
-
-            // First run: Derivate X
-            deriv.set_mask(maskXAllocation);
+            ScriptC_fssobel sobel = new ScriptC_fssobel(mRS,
+                    mCtx.getResources(), R.raw.fssobel);
+            sobel.set_input(mInAllocation);
+            sobel.set_maskX(maskXAllocation);
+            sobel.set_maskY(maskYAllocation);
+            sobel.set_width(in.getWidth());
+            sobel.set_height(in.getHeight());
 
             mRS.finish();
             timeKernel = System.nanoTime();
-            deriv.forEach_root(derivXAllocation);
-
-            mRS.finish();
-            time = (System.nanoTime() - timeKernel) / 1000000;
-
-            // Second run: Derivate Y
-            deriv.set_mask(maskYAllocation);
-
-            mRS.finish();
-            timeKernel = System.nanoTime();
-            deriv.forEach_root(derivYAllocation);
-
-            mRS.finish();
-            time += (System.nanoTime() - timeKernel) / 1000000;
-
-            // Third run: Combine
-            mRS.finish();
-            timeKernel = System.nanoTime();
-            combine.forEach_root(mOutAllocation);
+            sobel.forEach_root(mOutAllocation);
 
             mRS.finish();
             time += (System.nanoTime() - timeKernel) / 1000000;
@@ -423,7 +357,7 @@ public class NaiveFilters {
 
         return (int)time;
     }
-    
+
     private float ucharToFloat(byte in) {
         return in < 0 ? (float)in + 256 : in;
     }
