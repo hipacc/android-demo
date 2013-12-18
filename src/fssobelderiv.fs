@@ -12,7 +12,7 @@ short4 __attribute__((kernel)) root(uint32_t x, uint32_t y) {
     const int size_y = 5;
     const int offset_x = size_x/2;
     const int offset_y = size_y/2;
-    int4 sum = 0.0f;
+    int4 sum = 0;
     for (int yi = 0; yi < size_y; ++yi) {
         int yc = y - offset_y + yi;
         yc = min(max(yc, 0), (int)height-1);

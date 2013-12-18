@@ -83,6 +83,11 @@ public class MainActivity extends Activity {
                             mNaive.runFSSobel(mBitmapIn, mBitmapOut) :
                             mNaive.runRSSobel(mBitmapIn, mBitmapOut);
                     break;
+                case Harris:
+                    time = mRunFilterscript ?
+                            mNaive.runFSHarris(mBitmapIn, mBitmapOut) :
+                            mNaive.runRSHarris(mBitmapIn, mBitmapOut);
+                    break;
                 default:
                     time = -1;
                     break;
