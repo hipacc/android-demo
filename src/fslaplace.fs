@@ -1,5 +1,5 @@
 #pragma version(1)
-#pragma rs java_package_name(org.hipacc.example)
+#pragma rs java_package_name(org.hipacc.demo)
 
 rs_allocation input;
 rs_allocation mask;
