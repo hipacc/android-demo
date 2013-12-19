@@ -23,5 +23,5 @@ void root(uchar4* out, uint32_t x, uint32_t y) {
                            rsGetElementAt_float(mask, xi, yi);
         }
     }
-    *out = convert_uchar4(sum);
+    *out = convert_uchar4(sum + 0.5f);
 }

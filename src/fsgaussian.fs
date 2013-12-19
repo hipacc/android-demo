@@ -23,5 +23,5 @@ uchar4 __attribute__((kernel)) root(uint32_t x, uint32_t y) {
                            rsGetElementAt_float(mask, xi, yi);
         }
     }
-    return convert_uchar4(sum);
+    return convert_uchar4(sum + 0.5f);
 }
