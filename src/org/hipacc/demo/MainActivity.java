@@ -1,4 +1,6 @@
-package org.hipacc.example;
+package org.hipacc.demo;
+
+import org.hipacc.demo.R;
 
 import android.os.Bundle;
 import android.app.Activity;
@@ -13,6 +15,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {
@@ -29,10 +32,13 @@ public class MainActivity extends Activity {
 
     private FilterType mType;
     private boolean mRunFilterscript;
+    private boolean mForceCPU;
     private AlertDialog mTypeChooser;
 
     private NaiveFilters mNaive;
     private HIPAccFilters mHipacc;
+    private ImageView mOutput;
+    private TextView mConfig;
     private Button mBtnNaive;
     private Button mBtnHipacc;
     private Bitmap mBitmapIn;
@@ -45,9 +51,13 @@ public class MainActivity extends Activity {
 
         mType = FilterType.Blur;
         mRunFilterscript = false;
+        mForceCPU = false;
 
         mNaive = new NaiveFilters(this);
         mHipacc = new HIPAccFilters();
+        
+        mOutput = (ImageView)findViewById(R.id.imageView2);
+        mConfig = (TextView) findViewById(R.id.textView4);
 
         mBtnNaive = (Button) findViewById(R.id.buttonNaive);
         mBtnHipacc = (Button) findViewById(R.id.buttonHIPAcc);
@@ -150,6 +160,7 @@ public class MainActivity extends Activity {
                          new DialogInterface.OnClickListener() {
                    public void onClick(DialogInterface dialog, int which) {
                    mType = FilterType.values()[which];
+                   updateText();
                }
         });
         mTypeChooser = builder.create();
@@ -179,6 +190,9 @@ public class MainActivity extends Activity {
                     mRunFilterscript = true;
                     filterscript.setChecked(true);
                 }
+                
+                updateText();
+                
                 return true;
             }
         });
@@ -188,24 +202,19 @@ public class MainActivity extends Activity {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 RootHandler root = new RootHandler(MainActivity.this);
-
-                if (forceCPU.isChecked()) {
-                    root.runCommand("setprop debug.rs.default-CPU-driver 0", 0);
-                    if (root.close(ROOT_TIMEOUT)) {
-                        forceCPU.setChecked(false);
-                        return true;
-                    }
+                
+                root.runCommand("setprop debug.rs.default-CPU-driver " +
+                                (mForceCPU ? "0" : "1"), 0);
+                
+                if (root.close(ROOT_TIMEOUT)) {
+                    mForceCPU = !mForceCPU;
+                    forceCPU.setChecked(mForceCPU);
+                    updateText();
                 } else {
-                    root.runCommand("setprop debug.rs.default-CPU-driver 1", 0);
-                    if (root.close(ROOT_TIMEOUT)) {
-                        forceCPU.setChecked(true);
-                        return true;
-                    }
+                    Toast.makeText(MainActivity.this,
+                            "Need root permissions for this feature.",
+                            Toast.LENGTH_SHORT).show();
                 }
-
-                Toast.makeText(MainActivity.this,
-                        "Need root permissions for this feature.",
-                        Toast.LENGTH_SHORT).show();
 
                 return true;
             }
@@ -216,16 +225,24 @@ public class MainActivity extends Activity {
         String resp = root.runCommand("getprop debug.rs.default-CPU-driver",
                 ROOT_TIMEOUT);
         if ("1".equals(resp)) {
+            mForceCPU = true;
             forceCPU.setChecked(true);
         }
         root.close(0);
+        
+        updateText();
 
         return true;
     }
 
     private void updateOutput() {
-        ImageView imgView = (ImageView)findViewById(R.id.imageView2);
-        imgView.setImageBitmap(mBitmapOut);
+        mOutput.setImageBitmap(mBitmapOut);
     }
 
+    private void updateText() {
+        mConfig.setText(mType.toString() + ", " +
+                        (mRunFilterscript ? "Filterscript"
+                                          : "Renderscript") + ", " +
+                        (mForceCPU ? "Force CPU" : "CPU/GPU"));
+    }
 }

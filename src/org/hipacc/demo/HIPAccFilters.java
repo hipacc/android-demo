@@ -1,4 +1,4 @@
-package org.hipacc.example;
+package org.hipacc.demo;
 
 import android.graphics.Bitmap;
 

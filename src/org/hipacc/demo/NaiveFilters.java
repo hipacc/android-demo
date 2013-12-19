@@ -1,7 +1,21 @@
-package org.hipacc.example;
+package org.hipacc.demo;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+
+import org.hipacc.demo.R;
+import org.hipacc.demo.ScriptC_fsblur;
+import org.hipacc.demo.ScriptC_fsgaussian;
+import org.hipacc.demo.ScriptC_fsharris;
+import org.hipacc.demo.ScriptC_fsharrisderiv;
+import org.hipacc.demo.ScriptC_fslaplace;
+import org.hipacc.demo.ScriptC_fssobel;
+import org.hipacc.demo.ScriptC_rsblur;
+import org.hipacc.demo.ScriptC_rsgaussian;
+import org.hipacc.demo.ScriptC_rsharris;
+import org.hipacc.demo.ScriptC_rsharrisderiv;
+import org.hipacc.demo.ScriptC_rslaplace;
+import org.hipacc.demo.ScriptC_rssobel;
 
 import android.content.Context;
 import android.graphics.Bitmap;
