@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.view.Menu;
@@ -20,7 +22,8 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
-    private final int ROOT_TIMEOUT = 10000;
+    private static final int ROOT_TIMEOUT = 10000;
+    private static final String PREFS_NAME = "DemoPrefs";
 
     private enum FilterType {
         Blur,
@@ -33,6 +36,7 @@ public class MainActivity extends Activity {
     private FilterType mType;
     private boolean mRunFilterscript;
     private boolean mForceCPU;
+    private SharedPreferences mSettings;
     private AlertDialog mTypeChooser;
 
     private NaiveFilters mNaive;
@@ -49,13 +53,9 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mType = FilterType.Blur;
-        mRunFilterscript = false;
-        mForceCPU = false;
-
         mNaive = new NaiveFilters(this);
         mHipacc = new HIPAccFilters();
-        
+
         mOutput = (ImageView)findViewById(R.id.imageView2);
         mConfig = (TextView) findViewById(R.id.textView4);
 
@@ -153,6 +153,11 @@ public class MainActivity extends Activity {
             }
         });
 
+        mSettings = getSharedPreferences(PREFS_NAME, 0);
+        mType = FilterType.values()[mSettings.getInt("filterType", 0)];
+        mRunFilterscript = mSettings.getBoolean("runFilterscript", false);
+        mForceCPU = false;
+
         AlertDialog.Builder builder =
                 new AlertDialog.Builder(MainActivity.this);
         builder.setTitle("Choose a filter application")
@@ -165,6 +170,12 @@ public class MainActivity extends Activity {
                    }
                });
         mTypeChooser = builder.create();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        savePrefs();
     }
 
     @Override
@@ -184,16 +195,9 @@ public class MainActivity extends Activity {
         filterscript.setOnMenuItemClickListener(new OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                if (filterscript.isChecked()) {
-                    mRunFilterscript = false;
-                    filterscript.setChecked(false);
-                } else {
-                    mRunFilterscript = true;
-                    filterscript.setChecked(true);
-                }
-                
+                mRunFilterscript = !mRunFilterscript;
+                filterscript.setChecked(mRunFilterscript);
                 updateText();
-                
                 return true;
             }
         });
@@ -210,7 +214,8 @@ public class MainActivity extends Activity {
                 if (root.close(ROOT_TIMEOUT)) {
                     mForceCPU = !mForceCPU;
                     forceCPU.setChecked(mForceCPU);
-                    updateText();
+                    savePrefs();
+                    restartApp();
                 } else {
                     Toast.makeText(MainActivity.this,
                             "Need root permissions for this feature.",
@@ -227,10 +232,12 @@ public class MainActivity extends Activity {
                 ROOT_TIMEOUT);
         if ("1".equals(resp)) {
             mForceCPU = true;
-            forceCPU.setChecked(true);
         }
         root.close(0);
         
+        filterscript.setChecked(mRunFilterscript);
+        forceCPU.setChecked(mForceCPU);
+
         updateText();
 
         return true;
@@ -245,5 +252,19 @@ public class MainActivity extends Activity {
                         (mRunFilterscript ? "Filterscript"
                                           : "Renderscript") + ", " +
                         (mForceCPU ? "Force CPU" : "CPU/GPU"));
+    }
+
+    private void savePrefs() {
+        SharedPreferences.Editor editor = mSettings.edit();
+        editor.putInt("filterType", mType.ordinal());
+        editor.putBoolean("runFilterscript", mRunFilterscript);
+        editor.commit();
+    }
+
+    private void restartApp() {
+        Intent i = getBaseContext().getPackageManager()
+                .getLaunchIntentForPackage(getBaseContext().getPackageName());
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(i);
     }
 }
