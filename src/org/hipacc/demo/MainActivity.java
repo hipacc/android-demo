@@ -42,6 +42,8 @@ public class MainActivity extends Activity {
     private NaiveFilters mNaive;
     private HIPAccFilters mHipacc;
     private ImageView mOutput;
+    private TextView mTextInput;
+    private TextView mTextOutput;
     private TextView mConfig;
     private Button mBtnNaive;
     private Button mBtnHipacc;
@@ -56,8 +58,10 @@ public class MainActivity extends Activity {
         mNaive = new NaiveFilters(this);
         mHipacc = new HIPAccFilters();
 
-        mOutput = (ImageView)findViewById(R.id.imageView2);
+        mTextInput = (TextView) findViewById(R.id.textView1);
+        mTextOutput = (TextView) findViewById(R.id.textView2);
         mConfig = (TextView) findViewById(R.id.textView4);
+        mOutput = (ImageView)findViewById(R.id.imageView2);
 
         mBtnNaive = (Button) findViewById(R.id.buttonNaive);
         mBtnHipacc = (Button) findViewById(R.id.buttonHIPAcc);
@@ -248,6 +252,10 @@ public class MainActivity extends Activity {
     }
 
     private void updateText() {
+        mTextInput.setText("Input Image (" +
+                mBitmapIn.getWidth() + "x" + mBitmapIn.getHeight() + ")");
+        mTextOutput.setText("Output Image (" +
+                mBitmapOut.getWidth() + "x" + mBitmapOut.getHeight() + ")");
         mConfig.setText(mType.toString() + ", " +
                         (mRunFilterscript ? "Filterscript"
                                           : "Renderscript") + ", " +
