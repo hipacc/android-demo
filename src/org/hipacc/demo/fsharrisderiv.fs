@@ -12,6 +12,7 @@ float __attribute__((kernel)) root(uint32_t x, uint32_t y) {
     const int size_y = 3;
     const int offset_x = size_x/2;
     const int offset_y = size_y/2;
+
     float sum = 0.0f;
     for (int yi = 0; yi < size_y; ++yi) {
         int yc = y - offset_y + yi;
@@ -23,5 +24,6 @@ float __attribute__((kernel)) root(uint32_t x, uint32_t y) {
                     rsGetElementAt_float(mask, xi, yi);
         }
     }
+
     return sum;
 }

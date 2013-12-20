@@ -11,6 +11,7 @@ uchar4 __attribute__((kernel)) root(uint32_t x, uint32_t y) {
     const int size_y = 5;
     const int offset_x = size_x/2;
     const int offset_y = size_y/2;
+
     uint4 sum = 0;
     for (int yi = (int)y-offset_y; yi <= y+offset_y; ++yi) {
         int yc = min(max(yi, 0), (int)height-1);
@@ -19,5 +20,6 @@ uchar4 __attribute__((kernel)) root(uint32_t x, uint32_t y) {
             sum += convert_uint4(rsGetElementAt_uchar4(input, xc, yc));
         }
     }
+
     return convert_uchar4(sum/(size_x*size_y));
 }

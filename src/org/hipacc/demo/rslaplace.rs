@@ -12,6 +12,7 @@ void root(uchar4* out, uint32_t x, uint32_t y) {
     const int size_y = 5;
     const int offset_x = size_x/2;
     const int offset_y = size_y/2;
+
     int4 sum = 0.0f;
     for (int yi = 0; yi < size_y; ++yi) {
         int yc = y - offset_y + yi;
@@ -23,8 +24,10 @@ void root(uchar4* out, uint32_t x, uint32_t y) {
                            rsGetElementAt_int(mask, xi, yi);
         }
     }
+
     sum = min(sum, 255);
     sum = max(sum, 0);
     sum.w = 255;
+
     *out = convert_uchar4(sum);
 }

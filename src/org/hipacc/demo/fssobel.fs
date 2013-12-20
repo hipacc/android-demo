@@ -13,6 +13,7 @@ uchar4 __attribute__((kernel)) root(uint32_t x, uint32_t y) {
     const int size_y = 5;
     const int offset_x = size_x/2;
     const int offset_y = size_y/2;
+
     float4 sumX = 0.0f;
     float4 sumY = 0.0f;
     for (int yi = 0; yi < size_y; ++yi) {
