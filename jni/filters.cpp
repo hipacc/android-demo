@@ -3,7 +3,7 @@
 #include <android/bitmap.h>
 #include "hipacc_types.hpp"
 
-#define LOG_TAG "libhipacc_filters"
+#define LOG_TAG "libfilters"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
 

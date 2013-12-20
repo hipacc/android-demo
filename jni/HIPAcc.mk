@@ -27,7 +27,7 @@ LOCAL_RENDERSCRIPT_FLAGS += -allow-rs-prefix -target-api $(HIPACC_RS_VERSION) \
                             $(addprefix -I,$(HIPACC_INCLUDES))
 LOCAL_C_INCLUDES += $(HIPACC_INCLUDES) \
                     obj/local/armeabi/objs/$(LOCAL_MODULE)/$(HIPACC_GEN_PATH)
-LOCAL_SRC_FILES += hipacc_runtime.cpp
+LOCAL_SRC_FILES += hipacc.cpp
 
 
 # Mark setup complete

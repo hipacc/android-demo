@@ -2,10 +2,10 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 
-LOCAL_MODULE := hipacc_filters
+LOCAL_MODULE := filters
 
 LOCAL_CPPFLAGS += -DSIZE_X=5 -DSIZE_Y=5
-LOCAL_SRC_FILES := hipacc_filters.cpp
+LOCAL_SRC_FILES := filters.cpp
 LOCAL_LDLIBS := -llog -ljnigraphics
 
 LOCAL_ARM_MODE := arm

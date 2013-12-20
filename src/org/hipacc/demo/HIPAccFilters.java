@@ -5,7 +5,7 @@ import android.graphics.Bitmap;
 public class HIPAccFilters {
 
     static {
-        System.loadLibrary("hipacc_filters");
+        System.loadLibrary("filters");
     }
 
     public native int runRSBlur(Bitmap in, Bitmap out);
