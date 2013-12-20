@@ -17,7 +17,7 @@ LOCAL_ARM_MODE := arm
 HIPACC_RS_VERSION := 19
 HIPACC_SRC_PATH := hipacc_src
 HIPACC_GEN_PATH := hipacc_gen
-#HIPACC_INCLUDES := ...
+HIPACC_INCLUDES := $(shell pwd)/$(LOCAL_PATH)
 HIPACC_SRC_FILES := $(subst $(LOCAL_PATH)/$(HIPACC_SRC_PATH)/,,\
                             $(wildcard $(LOCAL_PATH)/$(HIPACC_SRC_PATH)/*.cpp))
 

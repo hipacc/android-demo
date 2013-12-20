@@ -31,6 +31,7 @@
 #include <sys/time.h>
 
 #include "hipacc.hpp"
+#include "filter_name.hpp"
 
 using namespace hipacc;
 using namespace hipacc::math;
@@ -60,19 +61,7 @@ class Blur : public Kernel<uchar4> {
 
 
 // Main function
-#ifdef HIPACC
-uchar4* pin;
-uchar4* pout;
-const int w = 1024;
-const int h = 1024;
-int main(int argc, const char **argv) {
-#else
-#ifndef FILTERSCRIPT
-int runRSBlur(int w, int h, uchar4 *pin, uchar4 *pout) {
-#else
-int runFSBlur(int w, int h, uchar4 *pin, uchar4 *pout) {
-#endif
-#endif
+FILTER_NAME(Blur) {
   const int width = w;
   const int height = h;
   const int size_x = SIZE_X;
@@ -80,8 +69,6 @@ int runFSBlur(int w, int h, uchar4 *pin, uchar4 *pout) {
   const int offset_x = size_x >> 1;
   const int offset_y = size_y >> 1;
   float timing = 0.0f;
-  uchar4 *host_in = pin;
-  uchar4 *host_out = pout;
 
   // define Domain for blur filter
   Domain dom(size_x, size_y);
@@ -96,14 +83,14 @@ int runFSBlur(int w, int h, uchar4 *pin, uchar4 *pout) {
   IterationSpace<uchar4> iter(out);
   Blur filter(iter, acc, dom, size_x, size_y);
 
-  in = host_in;
-  out = host_out;
+  in = pin;
+  out = pout;
 
   filter.execute();
   timing = hipaccGetLastKernelTiming();
 
   // get results
-  host_out = out.getData();
+  pout = out.getData();
 
   return timing;
 }

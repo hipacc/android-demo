@@ -35,6 +35,7 @@
 #include <sys/time.h>
 
 #include "hipacc.hpp"
+#include "filter_name.hpp"
 
 using namespace hipacc;
 using namespace hipacc::math;
@@ -76,27 +77,13 @@ class Sobel : public Kernel<uchar4> {
 
 
 // Main function
-#ifdef HIPACC
-int w = 1024;
-int h = 1024;
-uchar4 *in;
-uchar4 *out;
-int main(int argc, const char **argv) {
-#else
-#ifndef FILTERSCRIPT
-int runRSSobel(int w, int h, uchar4 *in, uchar4 *out) {
-#else
-int runFSSobel(int w, int h, uchar4 *in, uchar4 *out) {
-#endif
-#endif
+FILTER_NAME(Sobel) {
   const int width = w;
   const int height = h;
   const int size_x = SIZE_X;
   const int size_y = SIZE_Y;
   const int offset_x = size_x >> 1;
   const int offset_y = size_y >> 1;
-  uchar4 *host_in = in;
-  uchar4 *host_out = out;
   float timing = 0.0f;
 
   // only filter kernel sizes 3x3, 5x5, and 7x7 implemented
@@ -157,8 +144,8 @@ int runFSSobel(int w, int h, uchar4 *in, uchar4 *out) {
   Image<uchar4> IN(width, height);
   Image<uchar4> OUT(width, height);
 
-  IN = host_in;
-  OUT = host_out;
+  IN = pin;
+  OUT = pout;
 
   Domain D(size_x, size_y);
 
@@ -177,7 +164,7 @@ int runFSSobel(int w, int h, uchar4 *in, uchar4 *out) {
   timing = hipaccGetLastKernelTiming();
 
   // get results
-  host_out = OUT.getData();
+  pout = OUT.getData();
 
   return timing;
 }

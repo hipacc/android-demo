@@ -36,6 +36,7 @@
 #include <sys/time.h>
 
 #include "hipacc.hpp"
+#include "filter_name.hpp"
 
 using namespace hipacc;
 
@@ -98,19 +99,7 @@ class HarrisDeriv : public Kernel<float> {
 
 
 // Main function
-#ifdef HIPACC
-int w = 1024;
-int h = 1024;
-uchar4 *in;
-uchar4 *out;
-int main(int argc, const char **argv) {
-#else
-#ifndef FILTERSCRIPT
-int runRSHarris(int w, int h, uchar4 *in, uchar4 *out) {
-#else
-int runFSHarris(int w, int h, uchar4 *in, uchar4 *out) {
-#endif
-#endif
+FILTER_NAME(Harris) {
   float k = 0.04f;
   float threshold = 20000.0f;
   const int width = w;
@@ -124,13 +113,11 @@ int runFSHarris(int w, int h, uchar4 *in, uchar4 *out) {
       return -1;
   }
 
-  uchar4 *host_in = in;
-  uchar4 *host_out = out;
   uchar *filter_in = new uchar[width * height];
   float *result = new float[width * height];
 
   for (int i = 0; i < width * height; ++i) {
-      filter_in[i] = .2126 * in[i].x + .7152 * in[i].y + .0722 * in[i].z;
+      filter_in[i] = .2126 * pin[i].x + .7152 * pin[i].y + .0722 * pin[i].z;
   }
 
   // convolution filter masks
@@ -215,7 +202,7 @@ int runFSHarris(int w, int h, uchar4 *in, uchar4 *out) {
   result = RES.getData();
 
   // draw output
-  memcpy(host_out, host_in, sizeof(uchar4) * width * height);
+  memcpy(pout, pin, sizeof(uchar4) * width * height);
 
   for (int x = 0; x < width; ++x) {
     for (int y = 0; y < height; y++) {
@@ -223,16 +210,16 @@ int runFSHarris(int w, int h, uchar4 *in, uchar4 *out) {
       if (result[pos] > threshold) {
         for (int i = -10; i <= 10; ++i) {
           if (x+i >= 0 && x+i < width) {
-            host_out[pos+i].x =
-                host_out[pos+i].y =
-                host_out[pos+i].z = 255;
+            pout[pos+i].x =
+                pout[pos+i].y =
+                pout[pos+i].z = 255;
           }
         }
         for (int i = -10; i <= 10; ++i) {
           if (y+i > 0 && y+i < height) {
-            host_out[pos+(i*width)].x =
-                host_out[pos+(i*width)].y =
-                host_out[pos+(i*width)].z = 255;
+            pout[pos+(i*width)].x =
+                pout[pos+(i*width)].y =
+                pout[pos+(i*width)].z = 255;
           }
         }
       }
