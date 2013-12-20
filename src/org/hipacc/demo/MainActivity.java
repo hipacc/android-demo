@@ -156,13 +156,14 @@ public class MainActivity extends Activity {
         AlertDialog.Builder builder =
                 new AlertDialog.Builder(MainActivity.this);
         builder.setTitle("Choose a filter application")
-               .setItems(R.array.filters_array,
-                         new DialogInterface.OnClickListener() {
+               .setSingleChoiceItems(R.array.filters_array, mType.ordinal(),
+                       new DialogInterface.OnClickListener() {
                    public void onClick(DialogInterface dialog, int which) {
-                   mType = FilterType.values()[which];
-                   updateText();
-               }
-        });
+                       mType = FilterType.values()[which];
+                       updateText();
+                       mTypeChooser.dismiss(); // dirty
+                   }
+               });
         mTypeChooser = builder.create();
     }
 
