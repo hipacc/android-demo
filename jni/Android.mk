@@ -25,16 +25,16 @@ HIPACC_SRC_FILES := $(subst $(LOCAL_PATH)/$(HIPACC_SRC_PATH)/,,\
 ################################################################################
 # Run HIPAcc for Renderscript
 ################################################################################
+HIPACC_GEN_PREFIX := rs
 HIPACC_FLAGS := -emit-renderscript -rs-package org.hipacc.demo
-HIPACC_SRC_PREFIX := rs
 include $(LOCAL_PATH)/HIPAcc.mk
 
 
 ################################################################################
 # Run HIPAcc for Filterscript
 ################################################################################
+HIPACC_GEN_PREFIX := fs
 HIPACC_FLAGS := -emit-filterscript -rs-package org.hipacc.demo
-HIPACC_SRC_PREFIX := fs
 include $(LOCAL_PATH)/HIPAcc.mk
 
 
@@ -50,8 +50,11 @@ LOCAL_SRC_FILES += $(subst $(LOCAL_PATH)/,, \
 
 # Prepend define FILTERSCRIPT in generated Filterscript sources
 $(foreach SRC,$(HIPACC_SRC_FILES), \
-	$(shell sed -i "1i#define FILTERSCRIPT" \
-		$(LOCAL_PATH)/$(HIPACC_GEN_PATH)/fs$(SRC));)
+	$(shell if ! grep -q "^#define FILTERSCRIPT" \
+	                $(LOCAL_PATH)/$(HIPACC_GEN_PATH)/fs$(SRC); then \
+	            sed -i "1i#define FILTERSCRIPT" \
+	                    $(LOCAL_PATH)/$(HIPACC_GEN_PATH)/fs$(SRC); \
+	        fi))
 
 
 include $(BUILD_SHARED_LIBRARY)

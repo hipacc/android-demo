@@ -1,6 +1,7 @@
 ifeq ($(HIPACC_CLEAN),1)
 # Clean generated files
-$(shell rm $(LOCAL_PATH)/$(HIPACC_GEN_PATH)/*)
+$(shell rm $(LOCAL_PATH)/$(HIPACC_GEN_PATH)/* \
+           $(LOCAL_PATH)/$(HIPACC_GEN_PATH)/.checksums)
 else
 ifneq ($(HIPACC_SETUP_COMPLETE),1)
 
@@ -33,7 +34,7 @@ LOCAL_RENDERSCRIPT_FLAGS += -allow-rs-prefix -target-api $(HIPACC_RS_VERSION) \
                             $(addprefix -I,$(HIPACC_INCLUDES))
 LOCAL_C_INCLUDES += $(HIPACC_INCLUDES) \
                     obj/local/armeabi/objs/$(LOCAL_MODULE)/$(HIPACC_GEN_PATH)
-LOCAL_SRC_FILES += hipacc.cpp
+LOCAL_SRC_FILES += hipacc_runtime.cpp
 
 
 # Mark setup complete
@@ -46,14 +47,25 @@ endif # HIPACC_SETUP_COMPLETE
 ################################################################################
 $(foreach SRC,$(HIPACC_SRC_FILES), \
   	$(shell cd $(LOCAL_PATH)/$(HIPACC_GEN_PATH); \
-            hipacc $(HIPACC_FLAGS) -std=c++11 \
-                -I/usr/include \
-                -I$(shell clang -print-file-name=include) \
-                -I$(shell llvm-config --includedir) \
-                -I$(shell llvm-config --includedir)/c++/v1 \
-                $(addprefix -I,$(HIPACC_INCLUDES)) \
-                $(LOCAL_CPPFLAGS) -DHIPACC \
-                $(HIPACC_SRC_PATH)/$(SRC) -o $(HIPACC_SRC_PREFIX)$(SRC));)
+            MD5SUM=$$(echo $(HIPACC_GEN_PREFIX) HIPACC_FLAGS | \
+                     cat $(HIPACC_SRC_PATH)/$(SRC) - | md5sum); \
+            KEY=$(HIPACC_GEN_PREFIX)$(SRC); \
+            if [ "$$KEY:$$MD5SUM" != "$$(grep $$KEY .checksums)" ]; then \
+                hipacc $(HIPACC_FLAGS) -std=c++11 \
+                        -I/usr/include \
+                        -I$(shell clang -print-file-name=include) \
+                        -I$(shell llvm-config --includedir) \
+                        -I$(shell llvm-config --includedir)/c++/v1 \
+                        $(addprefix -I,$(HIPACC_INCLUDES)) \
+                        $(LOCAL_CPPFLAGS) -DHIPACC \
+                        $(HIPACC_SRC_PATH)/$(SRC) \
+                        -o $(HIPACC_GEN_PREFIX)$(SRC); \
+                if grep -q $$KEY .checksums; then \
+                    sed -i "/$$KEY:/c$$KEY:$$MD5SUM" .checksums; \
+                else \
+                    echo "$$KEY:$$MD5SUM" >> .checksums; \
+                fi \
+            fi;))
 
 
 endif # HIPACC_CLEAN
