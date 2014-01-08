@@ -1,4 +1,10 @@
+ifeq ($(HIPACC_CLEAN),1)
+# Clean generated files
+$(shell rm $(LOCAL_PATH)/$(HIPACC_GEN_PATH)/*)
+else
 ifneq ($(HIPACC_SETUP_COMPLETE),1)
+
+
 ################################################################################
 # Setup local C/C++ to use Renderscript from NDK
 ################################################################################
@@ -32,17 +38,12 @@ LOCAL_SRC_FILES += hipacc.cpp
 
 # Mark setup complete
 HIPACC_SETUP_COMPLETE := 1
-endif
+endif # HIPACC_SETUP_COMPLETE
 
 
 ################################################################################
 # Run HIPAcc
 ################################################################################
-ifeq ($(HIPACC_CLEAN),1)
-# Clean generated files
-$(shell rm $(LOCAL_PATH)/$(HIPACC_GEN_PATH)/*)
-else
-# Call HIPAcc to generate sources
 $(foreach SRC,$(HIPACC_SRC_FILES), \
   	$(shell cd $(LOCAL_PATH)/$(HIPACC_GEN_PATH); \
             hipacc $(HIPACC_FLAGS) -std=c++11 \
@@ -53,4 +54,6 @@ $(foreach SRC,$(HIPACC_SRC_FILES), \
                 $(addprefix -I,$(HIPACC_INCLUDES)) \
                 $(LOCAL_CPPFLAGS) -DHIPACC \
                 $(HIPACC_SRC_PATH)/$(SRC) -o $(HIPACC_SRC_PREFIX)$(SRC));)
-endif
+
+
+endif # HIPACC_CLEAN
