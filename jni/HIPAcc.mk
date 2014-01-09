@@ -47,8 +47,8 @@ endif # HIPACC_SETUP_COMPLETE
 ################################################################################
 $(foreach SRC,$(HIPACC_SRC_FILES), \
   	$(shell cd $(LOCAL_PATH)/$(HIPACC_GEN_PATH); \
-            MD5SUM=$$(echo $(HIPACC_GEN_PREFIX) HIPACC_FLAGS | \
-                     cat $(HIPACC_SRC_PATH)/$(SRC) - | md5sum); \
+            MD5SUM=$$(echo $(LOCAL_CPPFLAGS) $(HIPACC_FLAGS) | \
+                    cat $(HIPACC_SRC_PATH)/$(SRC) - | md5sum); \
             KEY=$(HIPACC_GEN_PREFIX)$(SRC); \
             if [ "$$KEY:$$MD5SUM" != "$$(grep $$KEY .checksums)" ]; then \
                 hipacc $(HIPACC_FLAGS) -std=c++11 \
