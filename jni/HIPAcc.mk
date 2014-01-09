@@ -60,12 +60,14 @@ $(foreach SRC,$(HIPACC_SRC_FILES), \
                         $(LOCAL_CPPFLAGS) -DHIPACC \
                         $(HIPACC_SRC_PATH)/$(SRC) \
                         -o $(HIPACC_GEN_PREFIX)$(SRC); \
-                if grep -q $$KEY .checksums; then \
-                    sed -i "/$$KEY:/c$$KEY:$$MD5SUM" .checksums; \
-                else \
-                    echo "$$KEY:$$MD5SUM" >> .checksums; \
-                fi \
-            fi;))
+                if [ "$$?" == "0" ]; then \
+                    if grep -q $$KEY .checksums; then \
+                        sed -i "/$$KEY:/c$$KEY:$$MD5SUM" .checksums; \
+                    else \
+                        echo "$$KEY:$$MD5SUM" >> .checksums; \
+                    fi; \
+                fi; \
+            fi))
 
 
 endif # HIPACC_CLEAN
