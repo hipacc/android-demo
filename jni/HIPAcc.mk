@@ -51,7 +51,9 @@ $(foreach SRC,$(HIPACC_SRC_FILES), \
             MD5SUM=$$(echo $(LOCAL_CPPFLAGS) $(HIPACC_FLAGS) | \
                     cat $(HIPACC_SRC_PATH)/$(SRC) - | md5sum); \
             KEY=$(HIPACC_GEN_PREFIX)$(SRC); \
-            if [ "$$KEY:$$MD5SUM" != "$$(grep $$KEY .checksums)" ]; then \
+            if [ ! -e .checksums ] || \
+               [ ! -e $(HIPACC_GEN_PREFIX)$(SRC) ] || \
+               [ "$$KEY:$$MD5SUM" != "$$(grep $$KEY .checksums)" ]; then \
                 hipacc $(HIPACC_FLAGS) -std=c++11 \
                         -I/usr/include \
                         -I$(shell clang -print-file-name=include) \
