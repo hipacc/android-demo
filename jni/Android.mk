@@ -14,6 +14,7 @@ LOCAL_ARM_MODE := arm
 ################################################################################
 # Configure HIPAcc
 ################################################################################
+$(call clear-vars, HIPACC_SETUP_COMPLETE)
 HIPACC_RS_VERSION := 19
 HIPACC_SRC_PATH := hipacc_src
 HIPACC_GEN_PATH := hipacc_gen

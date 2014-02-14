@@ -13,6 +13,7 @@ LOCAL_C_INCLUDES += $(SYSROOT_LINK)/usr/include/rs/cpp \
                     $(SYSROOT_LINK)/usr/include/rs
 LOCAL_LDLIBS += -l$(SYSROOT_LINK)/usr/lib/rs/libcutils.so \
                 -l$(SYSROOT_LINK)/usr/lib/rs/libRScpp_static.a
+$(shell $(call host-mkdir, libs/$(TARGET_ARCH_ABI))) # must be created manually
 
 
 ################################################################################
@@ -33,7 +34,7 @@ LOCAL_CPPFLAGS += -DRS_TARGET_API=$(HIPACC_RS_VERSION) -DEXCLUDE_IMPL
 LOCAL_RENDERSCRIPT_FLAGS += -allow-rs-prefix -target-api $(HIPACC_RS_VERSION) \
                             $(addprefix -I,$(HIPACC_INCLUDES))
 LOCAL_C_INCLUDES += $(HIPACC_INCLUDES) \
-                    obj/local/armeabi/objs/$(LOCAL_MODULE)/$(HIPACC_GEN_PATH)
+                    obj/local/$(TARGET_ARCH_ABI)/objs/$(LOCAL_MODULE)/$(HIPACC_GEN_PATH)
 LOCAL_SRC_FILES += hipacc_runtime.cpp
 
 
