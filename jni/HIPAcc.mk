@@ -1,7 +1,7 @@
 ifeq ($(HIPACC_CLEAN),1)
 # Clean generated files
-$(shell rm $(LOCAL_PATH)/$(HIPACC_GEN_PATH)/* \
-           $(LOCAL_PATH)/$(HIPACC_GEN_PATH)/.checksums)
+$(shell $(call host-rm, $(LOCAL_PATH)/$(HIPACC_GEN_PATH)/* \
+                        $(LOCAL_PATH)/$(HIPACC_GEN_PATH)/.checksums))
 else
 ifneq ($(HIPACC_SETUP_COMPLETE),1)
 
@@ -27,7 +27,7 @@ HIPACC_INCLUDES += $(subst hipacc,..,$(shell which hipacc))/include \
                    $(subst hipacc,..,$(shell which hipacc))/include/dsl
 
 # Create directory for generated sources
-$(shell mkdir -p $(LOCAL_PATH)/$(HIPACC_GEN_PATH))
+$(shell $(call host-mkdir, $(LOCAL_PATH)/$(HIPACC_GEN_PATH)))
 
 
 ################################################################################
