@@ -26,6 +26,9 @@ HIPACC_SRC_PATH := $(shell pwd)/$(LOCAL_PATH)/$(HIPACC_SRC_PATH)
 HIPACC_INCLUDES += $(subst hipacc,..,$(shell which hipacc))/include \
                    $(subst hipacc,..,$(shell which hipacc))/include/dsl
 
+# Create directory for generated sources
+$(shell mkdir -p $(LOCAL_PATH)/$(HIPACC_GEN_PATH))
+
 
 ################################################################################
 # Setup HIPAcc specific flags and sources to local C/C++
