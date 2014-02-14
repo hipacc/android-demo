@@ -6,6 +6,7 @@ public class HIPAccFilters {
 
     static {
         System.loadLibrary("filters");
+        System.loadLibrary("RSSupport"); // Necessary due to bug in NDK 9c
     }
 
     public native int runRSBlur(Bitmap in, Bitmap out);

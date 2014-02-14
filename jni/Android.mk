@@ -15,7 +15,6 @@ LOCAL_ARM_MODE := arm
 # Configure HIPAcc
 ################################################################################
 $(call clear-vars, HIPACC_SETUP_COMPLETE)
-HIPACC_RS_VERSION := 19
 HIPACC_SRC_PATH := hipacc_src
 HIPACC_GEN_PATH := hipacc_gen
 HIPACC_INCLUDES := $(shell pwd)/$(LOCAL_PATH)
@@ -60,3 +59,14 @@ $(foreach SRC,$(HIPACC_SRC_FILES), \
 
 
 include $(BUILD_SHARED_LIBRARY)
+
+
+################################################################################
+# Add prebuilts for Renderscript Support (legacy support API>=11)
+################################################################################
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := libRSSupport
+LOCAL_SRC_FILES := $(SYSROOT_LINK)/usr/lib/rs/libRSSupport.so
+
+include $(PREBUILT_SHARED_LIBRARY)

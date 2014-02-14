@@ -33,8 +33,9 @@ $(shell $(call host-mkdir, $(LOCAL_PATH)/$(HIPACC_GEN_PATH)))
 ################################################################################
 # Setup HIPAcc specific flags and sources to local C/C++
 ################################################################################
-LOCAL_CPPFLAGS += -DRS_TARGET_API=$(HIPACC_RS_VERSION) -DEXCLUDE_IMPL
-LOCAL_RENDERSCRIPT_FLAGS += -allow-rs-prefix -target-api $(HIPACC_RS_VERSION) \
+LOCAL_CPPFLAGS += -DEXCLUDE_IMPL
+LOCAL_RENDERSCRIPT_FLAGS += -allow-rs-prefix \
+                            -target-api $(APP_MIN_PLATFORM_LEVEL) \
                             $(addprefix -I,$(HIPACC_INCLUDES))
 LOCAL_C_INCLUDES += $(HIPACC_INCLUDES) \
                     obj/local/$(TARGET_ARCH_ABI)/objs/$(LOCAL_MODULE)/$(HIPACC_GEN_PATH)
