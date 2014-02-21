@@ -23,8 +23,8 @@ $(shell $(call host-mkdir, libs/$(TARGET_ARCH_ABI))) # must be created manually
 HIPACC_SRC_PATH := $(shell pwd)/$(LOCAL_PATH)/$(HIPACC_SRC_PATH)
 
 # Search HIPAcc includes (relative to HIPAcc binary in PATH)
-HIPACC_INCLUDES += $(subst hipacc,..,$(shell which hipacc))/include \
-                   $(subst hipacc,..,$(shell which hipacc))/include/dsl
+HIPACC_INCLUDES += $(subst bin/hipacc,,$(shell which hipacc))/include \
+                   $(subst bin/hipacc,,$(shell which hipacc))/include/dsl
 
 # Create directory for generated sources
 $(shell $(call host-mkdir, $(LOCAL_PATH)/$(HIPACC_GEN_PATH)))
@@ -41,6 +41,14 @@ LOCAL_C_INCLUDES += $(HIPACC_INCLUDES) \
                     obj/local/$(TARGET_ARCH_ABI)/objs/$(LOCAL_MODULE)/$(HIPACC_GEN_PATH)
 LOCAL_SRC_FILES += hipacc_runtime.cpp
 
+################################################################################
+# Setup operating system specific tools
+################################################################################
+MD5 := md5sum
+ifeq ($(HOST_OS),darwin)
+    MD5 := md5 -r
+endif
+
 
 # Mark setup complete
 HIPACC_SETUP_COMPLETE := 1
@@ -51,14 +59,15 @@ endif # HIPACC_SETUP_COMPLETE
 # Run HIPAcc
 ################################################################################
 $(foreach SRC,$(HIPACC_SRC_FILES), \
-  	$(shell cd $(LOCAL_PATH)/$(HIPACC_GEN_PATH); \
+    $(shell cd $(LOCAL_PATH)/$(HIPACC_GEN_PATH); \
             MD5SUM=$$(echo $(LOCAL_CPPFLAGS) $(HIPACC_FLAGS) | \
-                    cat $(HIPACC_SRC_PATH)/$(SRC) - | md5sum); \
+                    cat $(HIPACC_SRC_PATH)/$(SRC) - | $(MD5)); \
             KEY=$(HIPACC_GEN_PREFIX)$(SRC); \
             if [ ! -e .checksums ] || \
                [ ! -e $(HIPACC_GEN_PREFIX)$(SRC) ] || \
                [ "$$KEY:$$MD5SUM" != "$$(grep $$KEY .checksums)" ]; then \
                 hipacc $(HIPACC_FLAGS) -std=c++11 \
+                        -resource-dir $(shell clang -print-file-name=) \
                         -I/usr/include \
                         -I$(shell clang -print-file-name=include) \
                         -I$(shell llvm-config --includedir) \
