@@ -122,6 +122,7 @@ FILTER_NAME(Sobel) {
     OUT = pout;
 
     Domain D(size_x, size_y);
+    D(0, 0) = 0;
 
     // filter mask
     Mask<int> MX(size_x, size_y);
