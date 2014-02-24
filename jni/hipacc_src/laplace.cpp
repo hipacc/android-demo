@@ -19,18 +19,19 @@ using namespace hipacc::math;
 class Laplace : public Kernel<uchar4> {
   private:
     Accessor<uchar4> &input;
+    Domain &dom;
     Mask<int> &mask;
 
   public:
     Laplace(IterationSpace<uchar4> &iter, Accessor<uchar4> &input,
-            Mask<int> &mask)
-            : Kernel(iter), input(input), mask(mask) {
+            Domain &dom, Mask<int> &mask)
+            : Kernel(iter), input(input), dom(dom), mask(mask) {
         addAccessor(&input);
     }
 
     void kernel() {
-        int4 sum = convolve(mask, HipaccSUM, [&] () -> int4 {
-                       return mask() * convert_int4(input(mask));
+        int4 sum = reduce(dom, HipaccSUM, [&] () -> int4 {
+                       return mask(dom) * convert_int4(input(dom));
                    });
         sum = min(sum, 255);
         sum = max(sum, 0);
@@ -86,10 +87,12 @@ FILTER_NAME(Laplace) {
     // filter mask
     Mask<int> M(mask);
 
-    BoundaryCondition<uchar4> BcInClamp(In, M, BOUNDARY_CLAMP);
+    Domain D(M);
+
+    BoundaryCondition<uchar4> BcInClamp(In, D, BOUNDARY_CLAMP);
     Accessor<uchar4> AccInClamp(BcInClamp);
     IterationSpace<uchar4> IsOut(Out);
-    Laplace filter(IsOut, AccInClamp, M);
+    Laplace filter(IsOut, AccInClamp, D, M);
 
     filter.execute();
     timing = hipaccGetLastKernelTiming();
