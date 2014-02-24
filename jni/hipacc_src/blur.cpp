@@ -45,27 +45,27 @@ FILTER_NAME(Blur) {
     const int offset_y = size_y >> 1;
     float timing = 0.0f;
 
-    // define Domain for blur filter
-    Domain dom(size_x, size_y);
-
     // input and output image of width x height pixels
-    Image<uchar4> in(width, height);
-    Image<uchar4> out(width, height);
+    Image<uchar4> In(width, height);
+    Image<uchar4> Out(width, height);
 
-    BoundaryCondition<uchar4> bound(in, size_x, size_y, BOUNDARY_CLAMP);
-    Accessor<uchar4> acc(bound);
+    // define domain for blur filter
+    Domain D(size_x, size_y);
 
-    IterationSpace<uchar4> iter(out);
-    Blur filter(iter, acc, dom, size_x, size_y);
+    BoundaryCondition<uchar4> BcInClamp(In, D, BOUNDARY_CLAMP);
+    Accessor<uchar4> AccInClamp(BcInClamp);
 
-    in = pin;
-    out = pout;
+    IterationSpace<uchar4> IsOut(Out);
+    Blur filter(IsOut, AccInClamp, D, size_x, size_y);
+
+    In = pin;
+    Out = pout;
 
     filter.execute();
     timing = hipaccGetLastKernelTiming();
 
     // get results
-    pout = out.getData();
+    pout = Out.getData();
 
     return timing;
 }

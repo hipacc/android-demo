@@ -66,80 +66,78 @@ FILTER_NAME(Sobel) {
     }
 
     // filter coefficients
-    const int mask_x[] = {
+    const int mask_x[size_y][size_x] = {
 #if SIZE_X==3
-        -1, 0,  1,
-        -2, 0,  2,
-        -1, 0,  1
+        { -1, 0,  1 },
+        { -2, 0,  2 },
+        { -1, 0,  1 }
 #endif
 #if SIZE_X==5
-        -1, -2,  0,  2,  1,
-        -4, -8,  0,  8,  4,
-        -6, -12, 0,  12, 6,
-        -4, -8,  0,  8,  4,
-        -1, -2,  0,  2,  1
+        { -1,  -2,  0,  2,  1 },
+        { -4,  -8,  0,  8,  4 },
+        { -6, -12,  0, 12,  6 },
+        { -4,  -8,  0,  8,  4 },
+        { -1,  -2,  0,  2,  1 }
 #endif
 #if SIZE_X==7
-        -1,  -4,  -5,   0, 5,   4,  1,
-        -6,  -24, -30,  0, 30,  24,  6,
-        -15, -60, -75,  0, 75,  60, 15,
-        -20, -80, -100, 0, 100, 80, 20,
-        -15, -60, -75,  0, 75,  60, 15,
-        -6,  -24, -30,  0, 30,  24,  6,
-        -1,  -4,  -5,   0, 5,   4,  1
+        {  -1,  -4,   -5,  0,   5,  4,  1 },
+        {  -6, -24,  -30,  0,  30, 24,  6 },
+        { -15, -60,  -75,  0,  75, 60, 15 },
+        { -20, -80, -100,  0, 100, 80, 20 },
+        { -15, -60,  -75,  0,  75, 60, 15 },
+        {  -6, -24,  -30,  0,  30, 24,  6 },
+        {  -1,  -4,   -5,  0,   5,  4,  1 }
 #endif
     };
 
-    const int mask_y[] = {
+    const int mask_y[size_y][size_x] = {
 #if SIZE_X==3
-        -1, -2, -1,
-         0,  0,  0,
-         1,  2,  1
+        { -1, -2, -1 },
+        {  0,  0,  0 },
+        {  1,  2,  1 }
 #endif
 #if SIZE_X==5
-        -1, -4, -6,  -4, -1,
-        -2, -8, -12, -8, -2,
-         0,  0,  0,   0,  0,
-         2,  8,  12,  8,  2,
-         1,  4,  6,   4,  1
+        { -1, -4, -6,  -4, -1 },
+        { -2, -8, -12, -8, -2 },
+        {  0,  0,  0,   0,  0 },
+        {  2,  8,  12,  8,  2 },
+        {  1,  4,  6,   4,  1 }
 #endif
 #if SIZE_X==7
-        -1, -6,  -15, -20,  -15, -6,  -1,
-        -4, -24, -60, -80,  -60, -24, -4,
-        -5, -30, -75, -100, -75, -30, -5,
-         0,  0,   0,   0,    0,   0,   0,
-         5,  30,  75,  100,  75,  30,  5,
-         4,  24,  60,  80,   60,  24,  4,
-         1,  6,   15,  20,   15,  6,   1
+        { -1,  -6, -15,  -20, -15,  -6, -1 },
+        { -4, -24, -60,  -80, -60, -24, -4 },
+        { -5, -30, -75, -100, -75, -30, -5 },
+        {  0,   0,   0,    0,   0,   0,  0 },
+        {  5,  30,  75,  100,  75,  30,  5 },
+        {  4,  24,  60,   80,  60,  24,  4 },
+        {  1,   6,  15,   20,  15,   6,  1 }
 #endif
     };
 
     // input and output image of width x height pixels
-    Image<uchar4> IN(width, height);
-    Image<uchar4> OUT(width, height);
+    Image<uchar4> In(width, height);
+    Image<uchar4> Out(width, height);
 
-    IN = pin;
-    OUT = pout;
+    In = pin;
+    Out = pout;
+
+    // filter mask
+    Mask<int> MX(mask_x);
+    Mask<int> MY(mask_y);
 
     Domain D(size_x, size_y);
     D(0, 0) = 0;
 
-    // filter mask
-    Mask<int> MX(size_x, size_y);
-    Mask<int> MY(size_x, size_y);
-    MX = mask_x;
-    MY = mask_y;
-
-    BoundaryCondition<uchar4> BcInClamp(IN, size_x, size_y, BOUNDARY_CLAMP);
+    BoundaryCondition<uchar4> BcInClamp(In, D, BOUNDARY_CLAMP);
     Accessor<uchar4> AccInClamp(BcInClamp);
-    IterationSpace<uchar4> IsOut(OUT);
+    IterationSpace<uchar4> IsOut(Out);
     Sobel filter(IsOut, AccInClamp, D, MX, MY);
 
     filter.execute();
     timing = hipaccGetLastKernelTiming();
 
     // get results
-    pout = OUT.getData();
+    pout = Out.getData();
 
     return timing;
 }

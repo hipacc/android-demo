@@ -56,47 +56,46 @@ FILTER_NAME(Laplace) {
     }
 
     // convolution filter mask
-    const int mask[] = {
+    const int mask[size_y][size_x] = {
 #if SIZE_X==1
-        0,  1,  0,
-        1, -4,  1,
-        0,  1,  0
+        { 0,  1,  0 },
+        { 1, -4,  1 },
+        { 0,  1,  0 }
 #endif
 #if SIZE_X==3
-        2,  0,  2,
-        0, -8,  0,
-        2,  0,  2
+        { 2,  0,  2 },
+        { 0, -8,  0 },
+        { 2,  0,  2 }
 #endif
 #if SIZE_X==5
-        1,   1,   1,   1,   1,
-        1,   1,   1,   1,   1,
-        1,   1, -24,   1,   1,
-        1,   1,   1,   1,   1,
-        1,   1,   1,   1,   1
+        { 1,   1,   1,   1,   1 },
+        { 1,   1,   1,   1,   1 },
+        { 1,   1, -24,   1,   1 },
+        { 1,   1,   1,   1,   1 },
+        { 1,   1,   1,   1,   1 }
 #endif
     };
 
     // input and output image of width x height pixels
-    Image<uchar4> IN(width, height);
-    Image<uchar4> OUT(width, height);
+    Image<uchar4> In(width, height);
+    Image<uchar4> Out(width, height);
 
-    IN = pin;
-    OUT = pout;
+    In = pin;
+    Out = pout;
 
     // filter mask
-    Mask<int> M(size_x, size_y);
-    M = mask;
+    Mask<int> M(mask);
 
-    BoundaryCondition<uchar4> BcInClamp(IN, M, BOUNDARY_CLAMP);
+    BoundaryCondition<uchar4> BcInClamp(In, M, BOUNDARY_CLAMP);
     Accessor<uchar4> AccInClamp(BcInClamp);
-    IterationSpace<uchar4> IsOut(OUT);
+    IterationSpace<uchar4> IsOut(Out);
     Laplace filter(IsOut, AccInClamp, M);
 
     filter.execute();
     timing = hipaccGetLastKernelTiming();
 
     // get results
-    pout = OUT.getData();
+    pout = Out.getData();
 
     return timing;
 }

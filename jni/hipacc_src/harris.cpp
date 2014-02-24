@@ -55,18 +55,19 @@ class Harris : public Kernel<float> {
 class HarrisDeriv : public Kernel<float> {
   private:
     Accessor<uchar> &input;
+    Domain &dom;
     Mask<float> &mask;
 
   public:
     HarrisDeriv(IterationSpace<float> &iter,
-                Accessor<uchar> &input, Mask<float> &mask)
-            : Kernel(iter), input(input), mask(mask) {
+                Accessor<uchar> &input, Domain &dom, Mask<float> &mask)
+            : Kernel(iter), input(input), dom(dom), mask(mask) {
         addAccessor(&input);
     }
 
     void kernel() {
-        output() = convolve(mask, HipaccSUM, [&] () -> float {
-                       return input(mask) * mask();
+        output() = reduce(dom, HipaccSUM, [&] () -> float {
+                       return input(dom) * mask(dom);
                    });
     }
 };
@@ -95,85 +96,83 @@ FILTER_NAME(Harris) {
     }
 
     // convolution filter masks
-    const float mask_x[9] = {
-        -0.166666667f,          0.0f,  0.166666667f,
-        -0.166666667f,          0.0f,  0.166666667f,
-        -0.166666667f,          0.0f,  0.166666667f
+    const float mask_x[3][3] = {
+        { -0.166666667f,          0.0f,  0.166666667f },
+        { -0.166666667f,          0.0f,  0.166666667f },
+        { -0.166666667f,          0.0f,  0.166666667f }
     };
-    const float mask_y[9] = {
-        -0.166666667f, -0.166666667f, -0.166666667f,
-                 0.0f,          0.0f,          0.0f,
-         0.166666667f,  0.166666667f,  0.166666667f
+    const float mask_y[3][3] = {
+        { -0.166666667f, -0.166666667f, -0.166666667f },
+        {          0.0f,          0.0f,          0.0f },
+        {  0.166666667f,  0.166666667f,  0.166666667f }
     };
-    const float gauss[] = {
+    const float gauss[size_y][size_x] = {
 #if SIZE_X == 3
-        0.057118f, 0.124758f, 0.057118f,
-        0.124758f, 0.272496f, 0.124758f,
-        0.057118f, 0.124758f, 0.057118f
+        { 0.057118f, 0.124758f, 0.057118f },
+        { 0.124758f, 0.272496f, 0.124758f },
+        { 0.057118f, 0.124758f, 0.057118f }
 #endif
 #if SIZE_X == 5
-        0.005008f, 0.017300f, 0.026151f, 0.017300f, 0.005008f,
-        0.017300f, 0.059761f, 0.090339f, 0.059761f, 0.017300f,
-        0.026151f, 0.090339f, 0.136565f, 0.090339f, 0.026151f,
-        0.017300f, 0.059761f, 0.090339f, 0.059761f, 0.017300f,
-        0.005008f, 0.017300f, 0.026151f, 0.017300f, 0.005008f
+        { 0.005008f, 0.017300f, 0.026151f, 0.017300f, 0.005008f },
+        { 0.017300f, 0.059761f, 0.090339f, 0.059761f, 0.017300f },
+        { 0.026151f, 0.090339f, 0.136565f, 0.090339f, 0.026151f },
+        { 0.017300f, 0.059761f, 0.090339f, 0.059761f, 0.017300f },
+        { 0.005008f, 0.017300f, 0.026151f, 0.017300f, 0.005008f }
 #endif
 #if SIZE_X == 7
-        0.000841, 0.003010, 0.006471, 0.008351, 0.006471, 0.003010, 0.000841,
-        0.003010, 0.010778, 0.023169, 0.029902, 0.023169, 0.010778, 0.003010,
-        0.006471, 0.023169, 0.049806, 0.064280, 0.049806, 0.023169, 0.006471,
-        0.008351, 0.029902, 0.064280, 0.082959, 0.064280, 0.029902, 0.008351,
-        0.006471, 0.023169, 0.049806, 0.064280, 0.049806, 0.023169, 0.006471,
-        0.003010, 0.010778, 0.023169, 0.029902, 0.023169, 0.010778, 0.003010,
-        0.000841, 0.003010, 0.006471, 0.008351, 0.006471, 0.003010, 0.000841
+        { 0.000841, 0.003010, 0.006471, 0.008351, 0.006471, 0.003010, 0.000841 },
+        { 0.003010, 0.010778, 0.023169, 0.029902, 0.023169, 0.010778, 0.003010 },
+        { 0.006471, 0.023169, 0.049806, 0.064280, 0.049806, 0.023169, 0.006471 },
+        { 0.008351, 0.029902, 0.064280, 0.082959, 0.064280, 0.029902, 0.008351 },
+        { 0.006471, 0.023169, 0.049806, 0.064280, 0.049806, 0.023169, 0.006471 },
+        { 0.003010, 0.010778, 0.023169, 0.029902, 0.023169, 0.010778, 0.003010 },
+        { 0.000841, 0.003010, 0.006471, 0.008351, 0.006471, 0.003010, 0.000841 }
 #endif
     };
 
     // input and output image of width x height pixels
-    Image<uchar> IN(width, height);
-    Image<float> RES(width, height);
-    Image<float> DX(width, height);
-    Image<float> DY(width, height);
+    Image<uchar> In(width, height);
+    Image<float> Res(width, height);
+    Image<float> Dx(width, height);
+    Image<float> Dy(width, height);
 
-    IN = filter_in;
-    RES = result;
+    In = filter_in;
+    Res = result;
 
-    Domain D(size_x, size_y);
+    Mask<float> G(gauss);
+    Mask<float> MX(mask_x);
+    Mask<float> MY(mask_y);
 
-    Mask<float> MX(3, 3);
-    Mask<float> MY(3, 3);
-    MX = mask_x;
-    MY = mask_y;
+    Domain D(G);
+    Domain DX(MX);
+    Domain DY(MY);
 
-    Mask<float> G(size_x, size_y);
-    G = gauss;
-
-    BoundaryCondition<uchar> BcInClamp(IN, 3, 3, BOUNDARY_CLAMP);
+    BoundaryCondition<uchar> BcInClamp(In, DX, BOUNDARY_CLAMP);
     Accessor<uchar> AccInClamp(BcInClamp);
-    IterationSpace<float> IsDx(DX);
-    HarrisDeriv dx(IsDx, AccInClamp, MX);
+    IterationSpace<float> IsDx(Dx);
+    HarrisDeriv dx(IsDx, AccInClamp, DX, MX);
 
     dx.execute();
     timing = hipaccGetLastKernelTiming();
 
-    IterationSpace<float> IsDy(DY);
-    HarrisDeriv dy(IsDy, AccInClamp, MY);
+    IterationSpace<float> IsDy(Dy);
+    HarrisDeriv dy(IsDy, AccInClamp, DY, MY);
 
     dy.execute();
     timing += hipaccGetLastKernelTiming();
 
-    BoundaryCondition<float> BcDxClamp(DX, G, BOUNDARY_CLAMP);
+    BoundaryCondition<float> BcDxClamp(Dx, G, BOUNDARY_CLAMP);
     Accessor<float> AccDx(BcDxClamp);
-    BoundaryCondition<float> BcDyClamp(DY, G, BOUNDARY_CLAMP);
+    BoundaryCondition<float> BcDyClamp(Dy, G, BOUNDARY_CLAMP);
     Accessor<float> AccDy(BcDyClamp);
-    IterationSpace<float> IsRes(RES);
+    IterationSpace<float> IsRes(Res);
     Harris filter(IsRes, AccDx, AccDy, D, G, k);
 
     filter.execute();
     timing += hipaccGetLastKernelTiming();
 
     // get results
-    result = RES.getData();
+    result = Res.getData();
 
     // draw output
     memcpy(pout, pin, sizeof(uchar4) * width * height);
