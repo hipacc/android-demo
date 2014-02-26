@@ -48,6 +48,9 @@ MD5 := md5sum
 ifeq ($(HOST_OS),darwin)
     MD5 := md5 -r
 endif
+ifeq ($(HOST_OS),linux)
+    SHELL=/bin/bash
+endif
 
 
 # Mark setup complete
