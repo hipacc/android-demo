@@ -444,8 +444,7 @@ public class NaiveFilters {
                     0.005008f, 0.017300f, 0.026151f, 0.017300f, 0.005008f
             });
 
-            grayAllocation.copy1DRangeFrom(0, in.getWidth() * in.getHeight(),
-                    bufGray.array());
+            grayAllocation.copyFrom(bufGray.array());
 
             ScriptC_rsharrisderiv deriv = new ScriptC_rsharrisderiv(mRS,
                     mCtx.getResources(), R.raw.rsharrisderiv);
@@ -589,8 +588,7 @@ public class NaiveFilters {
                     0.005008f, 0.017300f, 0.026151f, 0.017300f, 0.005008f
             });
 
-            grayAllocation.copy1DRangeFrom(0, in.getWidth() * in.getHeight(),
-                    bufGray.array());
+            grayAllocation.copyFrom(bufGray.array());
 
             ScriptC_fsharrisderiv deriv = new ScriptC_fsharrisderiv(mRS,
                     mCtx.getResources(), R.raw.fsharrisderiv);
