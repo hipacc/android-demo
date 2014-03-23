@@ -23,7 +23,7 @@
 
         <ImageView
             android:id="@+id/imageView1"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:src="@drawable/landscape"
             android:adjustViewBounds="true" />
@@ -46,10 +46,11 @@
 
         <ImageView
             android:id="@+id/imageView2"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
             android:src="@drawable/landscape"
-            android:adjustViewBounds="true" />
+            android:visibility="invisible" />
 
     </LinearLayout>
 

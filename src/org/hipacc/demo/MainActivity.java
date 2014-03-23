@@ -74,86 +74,98 @@ public class MainActivity extends Activity {
         mBtnNaive.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Integer time;
+                mOutput.setVisibility(View.INVISIBLE);
 
-                switch (mType) {
-                case Blur:
-                    time = mRunFilterscript ?
-                            mNaive.runFSBlur(mBitmapIn, mBitmapOut) :
-                            mNaive.runRSBlur(mBitmapIn, mBitmapOut);
-                    break;
-                case Gaussian:
-                    time = mRunFilterscript ?
-                            mNaive.runFSGaussian(mBitmapIn, mBitmapOut) :
-                            mNaive.runRSGaussian(mBitmapIn, mBitmapOut);
-                    break;
-                case Laplace:
-                    time = mRunFilterscript ?
-                            mNaive.runFSLaplace(mBitmapIn, mBitmapOut) :
-                            mNaive.runRSLaplace(mBitmapIn, mBitmapOut);
-                    break;
-                case Sobel:
-                    time = mRunFilterscript ?
-                            mNaive.runFSSobel(mBitmapIn, mBitmapOut) :
-                            mNaive.runRSSobel(mBitmapIn, mBitmapOut);
-                    break;
-                case Harris:
-                    time = mRunFilterscript ?
-                            mNaive.runFSHarris(mBitmapIn, mBitmapOut) :
-                            mNaive.runRSHarris(mBitmapIn, mBitmapOut);
-                    break;
-                default:
-                    time = -1;
-                    break;
-                }
+                mOutput.post(new Runnable() {
+                    public void run() {
+                        Integer time;
 
-                Toast.makeText(MainActivity.this,
-                        "Time: " + time.toString() + "ms", Toast.LENGTH_SHORT)
-                        .show();
-                updateOutput();
+                        switch (mType) {
+                        case Blur:
+                            time = mRunFilterscript ?
+                                    mNaive.runFSBlur(mBitmapIn, mBitmapOut) :
+                                    mNaive.runRSBlur(mBitmapIn, mBitmapOut);
+                            break;
+                        case Gaussian:
+                            time = mRunFilterscript ?
+                                    mNaive.runFSGaussian(mBitmapIn, mBitmapOut) :
+                                    mNaive.runRSGaussian(mBitmapIn, mBitmapOut);
+                            break;
+                        case Laplace:
+                            time = mRunFilterscript ?
+                                    mNaive.runFSLaplace(mBitmapIn, mBitmapOut) :
+                                    mNaive.runRSLaplace(mBitmapIn, mBitmapOut);
+                            break;
+                        case Sobel:
+                            time = mRunFilterscript ?
+                                    mNaive.runFSSobel(mBitmapIn, mBitmapOut) :
+                                    mNaive.runRSSobel(mBitmapIn, mBitmapOut);
+                            break;
+                        case Harris:
+                            time = mRunFilterscript ?
+                                    mNaive.runFSHarris(mBitmapIn, mBitmapOut) :
+                                    mNaive.runRSHarris(mBitmapIn, mBitmapOut);
+                            break;
+                        default:
+                            time = -1;
+                            break;
+                        }
+
+                        Toast.makeText(MainActivity.this,
+                                "Time: " + time.toString() + "ms", Toast.LENGTH_SHORT)
+                                .show();
+                        updateOutput();
+                    }
+                });
             }
         });
 
         mBtnHipacc.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Integer time;
+                mOutput.setVisibility(View.INVISIBLE);
 
-                switch (mType) {
-                case Blur:
-                    time = mRunFilterscript ?
-                            mHipacc.runFSBlur(mBitmapIn, mBitmapOut) :
-                            mHipacc.runRSBlur(mBitmapIn, mBitmapOut);
-                    break;
-                case Gaussian:
-                    time = mRunFilterscript ?
-                            mHipacc.runFSGaussian(mBitmapIn, mBitmapOut) :
-                            mHipacc.runRSGaussian(mBitmapIn, mBitmapOut);
-                    break;
-                case Laplace:
-                    time = mRunFilterscript ?
-                            mHipacc.runFSLaplace(mBitmapIn, mBitmapOut) :
-                            mHipacc.runRSLaplace(mBitmapIn, mBitmapOut);
-                    break;
-                case Sobel:
-                    time = mRunFilterscript ?
-                            mHipacc.runFSSobel(mBitmapIn, mBitmapOut) :
-                            mHipacc.runRSSobel(mBitmapIn, mBitmapOut);
-                    break;
-                case Harris:
-                    time = mRunFilterscript ?
-                            mHipacc.runFSHarris(mBitmapIn, mBitmapOut) :
-                            mHipacc.runRSHarris(mBitmapIn, mBitmapOut);
-                    break;
-                default:
-                    time = -1;
-                    break;
-                }
+                mOutput.post(new Runnable() {
+                    public void run() {
+                        Integer time;
 
-                Toast.makeText(MainActivity.this,
-                        "Time: " + time.toString() + "ms", Toast.LENGTH_SHORT)
-                        .show();
-                updateOutput();
+                        switch (mType) {
+                        case Blur:
+                            time = mRunFilterscript ?
+                                    mHipacc.runFSBlur(mBitmapIn, mBitmapOut) :
+                                    mHipacc.runRSBlur(mBitmapIn, mBitmapOut);
+                            break;
+                        case Gaussian:
+                            time = mRunFilterscript ?
+                                    mHipacc.runFSGaussian(mBitmapIn, mBitmapOut) :
+                                    mHipacc.runRSGaussian(mBitmapIn, mBitmapOut);
+                            break;
+                        case Laplace:
+                            time = mRunFilterscript ?
+                                    mHipacc.runFSLaplace(mBitmapIn, mBitmapOut) :
+                                    mHipacc.runRSLaplace(mBitmapIn, mBitmapOut);
+                            break;
+                        case Sobel:
+                            time = mRunFilterscript ?
+                                    mHipacc.runFSSobel(mBitmapIn, mBitmapOut) :
+                                    mHipacc.runRSSobel(mBitmapIn, mBitmapOut);
+                            break;
+                        case Harris:
+                            time = mRunFilterscript ?
+                                    mHipacc.runFSHarris(mBitmapIn, mBitmapOut) :
+                                    mHipacc.runRSHarris(mBitmapIn, mBitmapOut);
+                            break;
+                        default:
+                            time = -1;
+                            break;
+                        }
+
+                        Toast.makeText(MainActivity.this,
+                                "Time: " + time.toString() + "ms", Toast.LENGTH_SHORT)
+                                .show();
+                        updateOutput();
+                    }
+                });
             }
         });
 
@@ -249,6 +261,7 @@ public class MainActivity extends Activity {
 
     private void updateOutput() {
         mOutput.setImageBitmap(mBitmapOut);
+        mOutput.setVisibility(View.VISIBLE);
     }
 
     private void updateText() {
