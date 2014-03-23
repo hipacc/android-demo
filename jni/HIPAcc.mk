@@ -45,8 +45,10 @@ LOCAL_SRC_FILES += hipacc_runtime.cpp
 # Setup operating system specific tools
 ################################################################################
 MD5 := md5sum
+SED := sed -i
 ifeq ($(HOST_OS),darwin)
     MD5 := md5 -r
+    SED := sed -i ''
 endif
 ifeq ($(HOST_OS),linux)
     SHELL=/bin/bash
@@ -81,7 +83,7 @@ $(foreach SRC,$(HIPACC_SRC_FILES), \
                         -o $(HIPACC_GEN_PREFIX)$(SRC); \
                 if [ "$$?" == "0" ]; then \
                     if grep -q $$KEY .checksums; then \
-                        sed -i "/$$KEY:/c$$KEY:$$MD5SUM" .checksums; \
+                        $(SED) "s/$$KEY:.*$$/$$KEY:$$MD5SUM/" .checksums; \
                     else \
                         echo "$$KEY:$$MD5SUM" >> .checksums; \
                     fi; \

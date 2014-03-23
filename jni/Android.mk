@@ -48,12 +48,13 @@ LOCAL_SRC_FILES += $(subst $(LOCAL_PATH)/,, \
                    $(subst $(LOCAL_PATH)/,, \
                            $(wildcard $(LOCAL_PATH)/$(HIPACC_GEN_PATH)/*.fs))
 
+
 # Prepend define FILTERSCRIPT in generated Filterscript sources
 $(foreach SRC,$(HIPACC_SRC_FILES), \
 	$(shell if test -e $(LOCAL_PATH)/$(HIPACC_GEN_PATH)/fs$(SRC) && \
                ! grep -q "^#define FILTERSCRIPT" \
 	                $(LOCAL_PATH)/$(HIPACC_GEN_PATH)/fs$(SRC); then \
-	            sed -i "1i#define FILTERSCRIPT" \
+	            $(SED) '1 s|^|#define FILTERSCRIPT\'$$'\n|' \
 	                    $(LOCAL_PATH)/$(HIPACC_GEN_PATH)/fs$(SRC); \
 	        fi))
 
