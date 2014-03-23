@@ -23,8 +23,8 @@ $(shell $(call host-mkdir, libs/$(TARGET_ARCH_ABI))) # must be created manually
 HIPACC_SRC_PATH := $(shell pwd)/$(LOCAL_PATH)/$(HIPACC_SRC_PATH)
 
 # Search HIPAcc includes (relative to HIPAcc binary in PATH)
-HIPACC_INCLUDES += $(subst bin/hipacc,,$(shell which hipacc))/include \
-                   $(subst bin/hipacc,,$(shell which hipacc))/include/dsl
+HIPACC_INCLUDES += $(subst hipacc,../include,$(shell which hipacc)) \
+                   $(subst hipacc,../include/dsl,$(shell which hipacc))
 
 # Create directory for generated sources
 $(shell $(call host-mkdir, $(LOCAL_PATH)/$(HIPACC_GEN_PATH)))
