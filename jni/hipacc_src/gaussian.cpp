@@ -28,7 +28,7 @@ class Gaussian : public Kernel<uchar4> {
     }
 
     void kernel() {
-        float4 sum = convolve(mask, HipaccSUM, [&] () -> float4 {
+        float4 sum = convolve(mask, Reduce::SUM, [&] () -> float4 {
                          return mask() * convert_float4(input(mask));
                      });
         output() = convert_uchar4(sum + 0.5f);
@@ -86,7 +86,7 @@ FILTER_NAME(Gaussian) {
     // filter mask
     Mask<float> M(mask);
 
-    BoundaryCondition<uchar4> BcInClamp(In, M, BOUNDARY_CLAMP);
+    BoundaryCondition<uchar4> BcInClamp(In, M, Boundary::CLAMP);
     Accessor<uchar4> AccInClamp(BcInClamp);
     IterationSpace<uchar4> IsOut(Out);
     Gaussian filter(IsOut, AccInClamp, M);

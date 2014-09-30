@@ -128,7 +128,7 @@ FILTER_NAME(Sobel) {
     Domain D(size_x, size_y);
     D(0, 0) = 0;
 
-    BoundaryCondition<uchar4> BcInClamp(In, D, BOUNDARY_CLAMP);
+    BoundaryCondition<uchar4> BcInClamp(In, D, Boundary::CLAMP);
     Accessor<uchar4> AccInClamp(BcInClamp);
     IterationSpace<uchar4> IsOut(Out);
     Sobel filter(IsOut, AccInClamp, D, MX, MY);

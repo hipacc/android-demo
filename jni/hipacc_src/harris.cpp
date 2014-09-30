@@ -66,7 +66,7 @@ class HarrisDeriv : public Kernel<float> {
     }
 
     void kernel() {
-        output() = reduce(dom, HipaccSUM, [&] () -> float {
+        output() = reduce(dom, Reduce::SUM, [&] () -> float {
                        return input(dom) * mask(dom);
                    });
     }
@@ -147,7 +147,7 @@ FILTER_NAME(Harris) {
     Domain DX(MX);
     Domain DY(MY);
 
-    BoundaryCondition<uchar> BcInClamp(In, DX, BOUNDARY_CLAMP);
+    BoundaryCondition<uchar> BcInClamp(In, DX, Boundary::CLAMP);
     Accessor<uchar> AccInClamp(BcInClamp);
     IterationSpace<float> IsDx(Dx);
     HarrisDeriv dx(IsDx, AccInClamp, DX, MX);
@@ -161,9 +161,9 @@ FILTER_NAME(Harris) {
     dy.execute();
     timing += hipaccGetLastKernelTiming();
 
-    BoundaryCondition<float> BcDxClamp(Dx, G, BOUNDARY_CLAMP);
+    BoundaryCondition<float> BcDxClamp(Dx, G, Boundary::CLAMP);
     Accessor<float> AccDx(BcDxClamp);
-    BoundaryCondition<float> BcDyClamp(Dy, G, BOUNDARY_CLAMP);
+    BoundaryCondition<float> BcDyClamp(Dy, G, Boundary::CLAMP);
     Accessor<float> AccDy(BcDyClamp);
     IterationSpace<float> IsRes(Res);
     Harris filter(IsRes, AccDx, AccDy, D, G, k);

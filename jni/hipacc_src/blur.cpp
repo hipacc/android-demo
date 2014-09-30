@@ -27,7 +27,7 @@ class Blur : public Kernel<uchar4> {
     }
 
     void kernel() {
-        uint4 sum = reduce(dom, HipaccSUM, [&] () -> uint4 {
+        uint4 sum = reduce(dom, Reduce::SUM, [&] () -> uint4 {
                         return convert_uint4(input(dom));
                     });
         output() = convert_uchar4(convert_float4(sum)/(size_x*size_y));
@@ -52,7 +52,7 @@ FILTER_NAME(Blur) {
     // define domain for blur filter
     Domain D(size_x, size_y);
 
-    BoundaryCondition<uchar4> BcInClamp(In, D, BOUNDARY_CLAMP);
+    BoundaryCondition<uchar4> BcInClamp(In, D, Boundary::CLAMP);
     Accessor<uchar4> AccInClamp(BcInClamp);
 
     IterationSpace<uchar4> IsOut(Out);

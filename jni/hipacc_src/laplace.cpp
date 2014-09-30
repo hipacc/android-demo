@@ -30,7 +30,7 @@ class Laplace : public Kernel<uchar4> {
     }
 
     void kernel() {
-        int4 sum = reduce(dom, HipaccSUM, [&] () -> int4 {
+        int4 sum = reduce(dom, Reduce::SUM, [&] () -> int4 {
                        return mask(dom) * convert_int4(input(dom));
                    });
         sum = min(sum, 255);
@@ -89,7 +89,7 @@ FILTER_NAME(Laplace) {
 
     Domain D(M);
 
-    BoundaryCondition<uchar4> BcInClamp(In, D, BOUNDARY_CLAMP);
+    BoundaryCondition<uchar4> BcInClamp(In, D, Boundary::CLAMP);
     Accessor<uchar4> AccInClamp(BcInClamp);
     IterationSpace<uchar4> IsOut(Out);
     Laplace filter(IsOut, AccInClamp, D, M);
