@@ -131,13 +131,10 @@ FILTER_NAME(Harris) {
     };
 
     // input and output image of width x height pixels
-    Image<uchar> In(width, height);
-    Image<float> Res(width, height);
+    Image<uchar> In(width, height, filter_in);
+    Image<float> Res(width, height, result);
     Image<float> Dx(width, height);
     Image<float> Dy(width, height);
-
-    In = filter_in;
-    Res = result;
 
     Mask<float> G(gauss);
     Mask<float> MX(mask_x);
@@ -153,13 +150,13 @@ FILTER_NAME(Harris) {
     HarrisDeriv dx(IsDx, AccInClamp, DX, MX);
 
     dx.execute();
-    timing = hipaccGetLastKernelTiming();
+    timing = hipacc_last_kernel_timing();
 
     IterationSpace<float> IsDy(Dy);
     HarrisDeriv dy(IsDy, AccInClamp, DY, MY);
 
     dy.execute();
-    timing += hipaccGetLastKernelTiming();
+    timing += hipacc_last_kernel_timing();
 
     BoundaryCondition<float> BcDxClamp(Dx, G, Boundary::CLAMP);
     Accessor<float> AccDx(BcDxClamp);
@@ -169,10 +166,10 @@ FILTER_NAME(Harris) {
     Harris filter(IsRes, AccDx, AccDy, D, G, k);
 
     filter.execute();
-    timing += hipaccGetLastKernelTiming();
+    timing += hipacc_last_kernel_timing();
 
-    // get results
-    result = Res.getData();
+    // get pointer to result data
+    result = Res.data();
 
     // draw output
     memcpy(pout, pin, sizeof(uchar4) * width * height);

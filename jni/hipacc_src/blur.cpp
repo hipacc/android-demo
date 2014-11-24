@@ -46,8 +46,8 @@ FILTER_NAME(Blur) {
     float timing = 0.0f;
 
     // input and output image of width x height pixels
-    Image<uchar4> In(width, height);
-    Image<uchar4> Out(width, height);
+    Image<uchar4> In(width, height, pin);
+    Image<uchar4> Out(width, height, pout);
 
     // define domain for blur filter
     Domain D(size_x, size_y);
@@ -58,14 +58,11 @@ FILTER_NAME(Blur) {
     IterationSpace<uchar4> IsOut(Out);
     Blur filter(IsOut, AccInClamp, D, size_x, size_y);
 
-    In = pin;
-    Out = pout;
-
     filter.execute();
-    timing = hipaccGetLastKernelTiming();
+    timing = hipacc_last_kernel_timing();
 
-    // get results
-    pout = Out.getData();
+    // get pointer to result data
+    pout = Out.data();
 
     return timing;
 }

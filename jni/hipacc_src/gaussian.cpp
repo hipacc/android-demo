@@ -77,11 +77,8 @@ FILTER_NAME(Gaussian) {
     };
 
     // input and output image of width x height pixels
-    Image<uchar4> In(width, height);
-    Image<uchar4> Out(width, height);
-
-    In = pin;
-    Out = pout;
+    Image<uchar4> In(width, height, pin);
+    Image<uchar4> Out(width, height, pout);
 
     // filter mask
     Mask<float> M(mask);
@@ -92,10 +89,10 @@ FILTER_NAME(Gaussian) {
     Gaussian filter(IsOut, AccInClamp, M);
 
     filter.execute();
-    timing = hipaccGetLastKernelTiming();
+    timing = hipacc_last_kernel_timing();
 
-    // get results
-    pout = Out.getData();
+    // get pointer to result data
+    pout = Out.data();
 
     return timing;
 }
