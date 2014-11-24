@@ -95,7 +95,8 @@ FILTER_NAME(Laplace) {
     timing = hipacc_last_kernel_timing();
 
     // get pointer to result data
-    pout = Out.data();
+    uchar4 *result = Out.data();
+    memcpy(pout, result, sizeof(uchar4) * width * height);
 
     return timing;
 }

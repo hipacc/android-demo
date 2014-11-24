@@ -89,7 +89,6 @@ FILTER_NAME(Harris) {
     }
 
     uchar *filter_in = new uchar[width * height];
-    float *result = new float[width * height];
 
     for (int i = 0; i < width * height; ++i) {
         filter_in[i] = .2126 * pin[i].x + .7152 * pin[i].y + .0722 * pin[i].z;
@@ -132,7 +131,7 @@ FILTER_NAME(Harris) {
 
     // input and output image of width x height pixels
     Image<uchar> In(width, height, filter_in);
-    Image<float> Res(width, height, result);
+    Image<float> Res(width, height);
     Image<float> Dx(width, height);
     Image<float> Dy(width, height);
 
@@ -169,7 +168,7 @@ FILTER_NAME(Harris) {
     timing += hipacc_last_kernel_timing();
 
     // get pointer to result data
-    result = Res.data();
+    float *result = Res.data();
 
     // draw output
     memcpy(pout, pin, sizeof(uchar4) * width * height);
@@ -196,7 +195,6 @@ FILTER_NAME(Harris) {
         }
     }
 
-    delete[] result;
     delete[] filter_in;
 
     return timing;
