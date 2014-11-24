@@ -26,7 +26,7 @@ class Laplace : public Kernel<uchar4> {
     Laplace(IterationSpace<uchar4> &iter, Accessor<uchar4> &input,
             Domain &dom, Mask<int> &mask)
             : Kernel(iter), input(input), dom(dom), mask(mask) {
-        addAccessor(&input);
+        add_accessor(&input);
     }
 
     void kernel() {
@@ -95,7 +95,7 @@ FILTER_NAME(Laplace) {
     timing = hipacc_last_kernel_timing();
 
     // get pointer to result data
-    result = Out.data();
+    pout = Out.data();
 
     return timing;
 }

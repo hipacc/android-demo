@@ -23,7 +23,7 @@ class Blur : public Kernel<uchar4> {
          const int size_x, const int size_y)
             : Kernel(iter), input(input), dom(dom),
               size_x(size_x), size_y(size_y) {
-        addAccessor(&input);
+        add_accessor(&input);
     }
 
     void kernel() {

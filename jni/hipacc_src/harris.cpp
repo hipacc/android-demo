@@ -30,8 +30,8 @@ class Harris : public Kernel<float> {
            Domain &dom, Mask<float> &mask, float k)
               : Kernel(iter), inputX(inputX), inputY(inputY),
                 dom(dom), mask(mask), k(k) {
-        addAccessor(&inputX);
-        addAccessor(&inputY);
+        add_accessor(&inputX);
+        add_accessor(&inputY);
     }
 
     void kernel() {
@@ -62,7 +62,7 @@ class HarrisDeriv : public Kernel<float> {
     HarrisDeriv(IterationSpace<float> &iter,
                 Accessor<uchar> &input, Domain &dom, Mask<float> &mask)
             : Kernel(iter), input(input), dom(dom), mask(mask) {
-        addAccessor(&input);
+        add_accessor(&input);
     }
 
     void kernel() {

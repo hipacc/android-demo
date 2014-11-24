@@ -27,7 +27,7 @@ class Sobel : public Kernel<uchar4> {
     Sobel(IterationSpace<uchar4> &iter, Accessor<uchar4> &input,
           Domain &dom, Mask<int> &maskX, Mask<int> &maskY)
             : Kernel(iter), input(input), dom(dom), maskX(maskX), maskY(maskY) {
-        addAccessor(&input);
+        add_accessor(&input);
     }
 
     void kernel() {

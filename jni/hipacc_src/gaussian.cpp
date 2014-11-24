@@ -24,7 +24,7 @@ class Gaussian : public Kernel<uchar4> {
     Gaussian(IterationSpace<uchar4> &iter, Accessor<uchar4> &input,
              Mask<float> &mask)
             : Kernel(iter), input(input), mask(mask) {
-        addAccessor(&input);
+        add_accessor(&input);
     }
 
     void kernel() {
