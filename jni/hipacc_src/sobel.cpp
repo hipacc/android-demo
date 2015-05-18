@@ -1,12 +1,4 @@
-#include <iostream>
-#include <vector>
-
-#include <float.h>
-#include <math.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <sys/time.h>
+#include <cstring>
 
 #include "hipacc.hpp"
 #include "filter_name.hpp"
@@ -15,7 +7,7 @@ using namespace hipacc;
 using namespace hipacc::math;
 
 
-// Kernel description in HIPAcc
+// Kernel description in Hipacc
 class Sobel : public Kernel<uchar4> {
   private:
     Accessor<uchar4> &input;
@@ -58,7 +50,6 @@ FILTER_NAME(Sobel) {
     const int size_y = SIZE_Y;
     const int offset_x = size_x >> 1;
     const int offset_y = size_y >> 1;
-    float timing = 0.0f;
 
     // only filter kernel sizes 3x3, 5x5, and 7x7 implemented
     if (size_x != size_y || !(size_x == 3 || size_x == 5 || size_x == 7)) {
@@ -131,12 +122,11 @@ FILTER_NAME(Sobel) {
     Sobel filter(IsOut, AccInClamp, D, MX, MY);
 
     filter.execute();
-    timing = hipacc_last_kernel_timing();
+    float timing = hipacc_last_kernel_timing();
 
     // get pointer to result data
     uchar4 *result = Out.data();
-    memcpy(pout, result, sizeof(uchar4) * width * height);
+    std::memcpy(pout, result, sizeof(uchar4) * width * height);
 
     return timing;
 }
-

@@ -1,13 +1,4 @@
-#include <iostream>
-#include <vector>
-#include <numeric>
-
-#include <float.h>
-#include <math.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <sys/time.h>
+#include <cstring>
 
 #include "hipacc.hpp"
 #include "filter_name.hpp"
@@ -15,7 +6,7 @@
 using namespace hipacc;
 
 
-// Kernel description in HIPAcc
+// Kernel description in Hipacc
 class Harris : public Kernel<float> {
   private:
     Accessor<float> &inputX;
@@ -81,7 +72,6 @@ FILTER_NAME(Harris) {
     const int height = h;
     const int size_x = SIZE_X;
     const int size_y = SIZE_Y;
-    float timing = 0.0f;
 
     // only filter kernel sizes 3x3, 5x5, and 7x7 implemented
     if (size_x != size_y || !(size_x == 3 || size_x == 5 || size_x == 7)) {
@@ -149,7 +139,7 @@ FILTER_NAME(Harris) {
     HarrisDeriv dx(IsDx, AccInClamp, DX, MX);
 
     dx.execute();
-    timing = hipacc_last_kernel_timing();
+    float timing = hipacc_last_kernel_timing();
 
     IterationSpace<float> IsDy(Dy);
     HarrisDeriv dy(IsDy, AccInClamp, DY, MY);
@@ -171,7 +161,7 @@ FILTER_NAME(Harris) {
     float *result = Res.data();
 
     // draw output
-    memcpy(pout, pin, sizeof(uchar4) * width * height);
+    std::memcpy(pout, pin, sizeof(uchar4) * width * height);
 
     for (int x = 0; x < width; ++x) {
         for (int y = 0; y < height; y++) {
@@ -199,4 +189,3 @@ FILTER_NAME(Harris) {
 
     return timing;
 }
-

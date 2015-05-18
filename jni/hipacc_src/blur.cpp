@@ -1,17 +1,12 @@
-#include <iostream>
-#include <float.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/time.h>
+#include <cstring>
 
 #include "hipacc.hpp"
 #include "filter_name.hpp"
 
 using namespace hipacc;
-using namespace hipacc::math;
 
 
-// Kernel description in HIPAcc
+// Kernel description in Hipacc
 class Blur : public Kernel<uchar4> {
   private:
     Accessor<uchar4> &input;
@@ -43,7 +38,6 @@ FILTER_NAME(Blur) {
     const int size_y = SIZE_Y;
     const int offset_x = size_x >> 1;
     const int offset_y = size_y >> 1;
-    float timing = 0.0f;
 
     // input and output image of width x height pixels
     Image<uchar4> In(width, height, pin);
@@ -59,12 +53,11 @@ FILTER_NAME(Blur) {
     Blur filter(IsOut, AccInClamp, D, size_x, size_y);
 
     filter.execute();
-    timing = hipacc_last_kernel_timing();
+    float timing = hipacc_last_kernel_timing();
 
     // get pointer to result data
     uchar4 *result = Out.data();
-    memcpy(pout, result, sizeof(uchar4) * width * height);
+    std::memcpy(pout, result, sizeof(uchar4) * width * height);
 
     return timing;
 }
-
