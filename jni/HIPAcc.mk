@@ -9,20 +9,20 @@ ifneq ($(HIPACC_SETUP_COMPLETE),1)
 ################################################################################
 # Setup local C/C++ to use Renderscript from NDK
 ################################################################################
-LOCAL_C_INCLUDES += $(SYSROOT_LINK)/usr/include/rs/cpp \
-                    $(SYSROOT_LINK)/usr/include/rs
-LOCAL_LDLIBS += -l$(SYSROOT_LINK)/usr/lib/rs/libcutils.so \
-                -l$(SYSROOT_LINK)/usr/lib/rs/libRScpp_static.a
+LOCAL_C_INCLUDES += $(TARGET_C_INCLUDES)/rs/cpp \
+                    $(TARGET_C_INCLUDES)/rs
+LOCAL_LDFLAGS    += -L$(SYSROOT_LINK)/usr/lib/rs
+LOCAL_LDLIBS     += -lRScpp_static
 $(shell $(call host-mkdir, libs/$(TARGET_ARCH_ABI))) # must be created manually
 
 
 ################################################################################
-# Setup HIPAcc
+# Setup Hipacc
 ################################################################################
 # Convert relative source path to absolute path
 HIPACC_SRC_PATH := $(shell pwd)/$(LOCAL_PATH)/$(HIPACC_SRC_PATH)
 
-# Search HIPAcc includes (relative to HIPAcc binary in PATH)
+# Search Hipacc includes (relative to Hipacc binary in PATH)
 HIPACC_INCLUDES += $(subst bin/hipacc,include,$(shell which hipacc)) \
                    $(subst bin/hipacc,include/dsl,$(shell which hipacc))
 
@@ -31,14 +31,14 @@ $(shell $(call host-mkdir, $(LOCAL_PATH)/$(HIPACC_GEN_PATH)))
 
 
 ################################################################################
-# Setup HIPAcc specific flags and sources to local C/C++
+# Setup Hipacc specific flags and sources to local C/C++
 ################################################################################
 LOCAL_CPPFLAGS += -DEXCLUDE_IMPL
 LOCAL_RENDERSCRIPT_FLAGS += -allow-rs-prefix \
                             -target-api $(APP_MIN_PLATFORM_LEVEL) \
                             $(addprefix -I,$(HIPACC_INCLUDES))
 LOCAL_C_INCLUDES += $(HIPACC_INCLUDES) \
-                    obj/local/$(TARGET_ARCH_ABI)/objs/$(LOCAL_MODULE)/$(HIPACC_GEN_PATH)
+                    $(TARGET_OBJS)/$(LOCAL_MODULE)/$(HIPACC_GEN_PATH)
 LOCAL_SRC_FILES += hipacc_runtime.cpp
 
 ################################################################################
@@ -61,7 +61,7 @@ endif # HIPACC_SETUP_COMPLETE
 
 
 ################################################################################
-# Run HIPAcc
+# Run Hipacc
 ################################################################################
 $(foreach SRC,$(HIPACC_SRC_FILES), \
     $(shell cd $(LOCAL_PATH)/$(HIPACC_GEN_PATH); \

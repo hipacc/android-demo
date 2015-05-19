@@ -8,11 +8,9 @@ LOCAL_CPPFLAGS += -DSIZE_X=5 -DSIZE_Y=5
 LOCAL_SRC_FILES := filters.cpp
 LOCAL_LDLIBS := -llog -ljnigraphics
 
-LOCAL_ARM_MODE := arm
-
 
 ################################################################################
-# Configure HIPAcc
+# Configure Hipacc
 ################################################################################
 $(call clear-vars, HIPACC_SETUP_COMPLETE)
 HIPACC_SRC_PATH := hipacc_src
@@ -23,7 +21,7 @@ HIPACC_SRC_FILES := $(subst $(LOCAL_PATH)/$(HIPACC_SRC_PATH)/,,\
 
 
 ################################################################################
-# Run HIPAcc for Renderscript
+# Run Hipacc for Renderscript
 ################################################################################
 HIPACC_GEN_PREFIX := rs
 HIPACC_FLAGS := -emit-renderscript -target Midgard -rs-package org.hipacc.demo
@@ -31,7 +29,7 @@ include $(LOCAL_PATH)/HIPAcc.mk
 
 
 ################################################################################
-# Run HIPAcc for Filterscript
+# Run Hipacc for Filterscript
 ################################################################################
 HIPACC_GEN_PREFIX := fs
 HIPACC_FLAGS := -emit-filterscript -target Midgard -rs-package org.hipacc.demo
@@ -51,12 +49,12 @@ LOCAL_SRC_FILES += $(subst $(LOCAL_PATH)/,, \
 
 # Prepend define FILTERSCRIPT in generated Filterscript sources
 $(foreach SRC,$(HIPACC_SRC_FILES), \
-	$(shell if test -e $(LOCAL_PATH)/$(HIPACC_GEN_PATH)/fs$(SRC) && \
+    $(shell if test -e $(LOCAL_PATH)/$(HIPACC_GEN_PATH)/fs$(SRC) && \
                ! grep -q "^#define FILTERSCRIPT" \
-	                $(LOCAL_PATH)/$(HIPACC_GEN_PATH)/fs$(SRC); then \
-	            $(SED) '1 s|^|#define FILTERSCRIPT\'$$'\n|' \
-	                    $(LOCAL_PATH)/$(HIPACC_GEN_PATH)/fs$(SRC); \
-	        fi))
+                    $(LOCAL_PATH)/$(HIPACC_GEN_PATH)/fs$(SRC); then \
+                $(SED) '1 s|^|#define FILTERSCRIPT\'$$'\n|' \
+                        $(LOCAL_PATH)/$(HIPACC_GEN_PATH)/fs$(SRC); \
+            fi))
 
 
 include $(BUILD_SHARED_LIBRARY)

@@ -1,8 +1,8 @@
-// HIPAcc only parses main functions, so we need to abstract the function name
+// Hipacc only parses main functions, so we need to abstract the function name
 // depending on who is currently compiling this file.
 
 #ifdef HIPACC
-  // Main function for HIPAcc
+  // Main function for Hipacc
 # define FILTER_NAME(NAME) \
       uchar4* pin; \
       uchar4* pout; \
