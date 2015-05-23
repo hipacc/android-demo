@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">HIPAcc Demo</string>
+    <string name="app_name">Hipacc Demo</string>
     <string-array name="filters_array">
         <item>Blur</item>
         <item>Gaussian Blur</item>

@@ -25,7 +25,7 @@ HIPACC_SRC_FILES := $(subst $(LOCAL_PATH)/$(HIPACC_SRC_PATH)/,,\
 ################################################################################
 HIPACC_GEN_PREFIX := rs
 HIPACC_FLAGS := -emit-renderscript -target Midgard -rs-package org.hipacc.demo
-include $(LOCAL_PATH)/HIPAcc.mk
+include $(LOCAL_PATH)/Hipacc.mk
 
 
 ################################################################################
@@ -33,7 +33,7 @@ include $(LOCAL_PATH)/HIPAcc.mk
 ################################################################################
 HIPACC_GEN_PREFIX := fs
 HIPACC_FLAGS := -emit-filterscript -target Midgard -rs-package org.hipacc.demo
-include $(LOCAL_PATH)/HIPAcc.mk
+include $(LOCAL_PATH)/Hipacc.mk
 
 
 ################################################################################

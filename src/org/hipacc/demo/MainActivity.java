@@ -40,7 +40,7 @@ public class MainActivity extends Activity {
     private AlertDialog mTypeChooser;
 
     private NaiveFilters mNaive;
-    private HIPAccFilters mHipacc;
+    private HipaccFilters mHipacc;
     private ImageView mOutput;
     private TextView mTextInput;
     private TextView mTextOutput;
@@ -56,7 +56,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         mNaive = new NaiveFilters(this);
-        mHipacc = new HIPAccFilters();
+        mHipacc = new HipaccFilters();
 
         mTextInput = (TextView) findViewById(R.id.textView1);
         mTextOutput = (TextView) findViewById(R.id.textView2);
@@ -64,7 +64,7 @@ public class MainActivity extends Activity {
         mOutput = (ImageView)findViewById(R.id.imageView2);
 
         mBtnNaive = (Button) findViewById(R.id.buttonNaive);
-        mBtnHipacc = (Button) findViewById(R.id.buttonHIPAcc);
+        mBtnHipacc = (Button) findViewById(R.id.buttonHipacc);
 
         mBitmapIn = BitmapFactory.decodeResource(this.getResources(),
                 R.drawable.landscape);

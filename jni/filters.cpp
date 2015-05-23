@@ -8,7 +8,7 @@
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
 
 // Creates JNI function name
-#define CREATE_NAME(NAME) Java_org_hipacc_demo_HIPAccFilters_ ## NAME
+#define CREATE_NAME(NAME) Java_org_hipacc_demo_HipaccFilters_ ## NAME
 
 // Initializes dimensions and pixels pointer from bitmaps
 int init(JNIEnv *env, int* width, int* height, void **ppin, void **ppout,

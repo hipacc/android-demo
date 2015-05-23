@@ -96,13 +96,13 @@
             android:text="Naive Execution" />
 
         <Button
-            android:id="@+id/buttonHIPAcc"
+            android:id="@+id/buttonHipacc"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             style="?android:attr/borderlessButtonStyle"
             android:background="?android:attr/selectableItemBackground"
-            android:text="HIPAcc Execution" />
+            android:text="Hipacc Execution" />
 
     </LinearLayout>
 
