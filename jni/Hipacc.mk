@@ -72,9 +72,9 @@ $(foreach SRC,$(HIPACC_SRC_FILES), \
                [ ! -e $(HIPACC_GEN_PREFIX)$(SRC) ] || \
                [ "$$KEY:$$MD5SUM" != "$$(grep $$KEY .checksums)" ]; then \
                 hipacc $(HIPACC_FLAGS) -std=c++11 \
-                        -I$(shell clang -print-file-name=include) \
                         -I$(shell llvm-config --includedir) \
                         -I$(shell llvm-config --includedir)/c++/v1 \
+                        -I$(shell clang -print-file-name=include) \
                         $(addprefix -I,$(HIPACC_INCLUDES)) \
                         $(LOCAL_CPPFLAGS) -DHIPACC \
                         $(HIPACC_SRC_PATH)/$(SRC) \
