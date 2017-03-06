@@ -42,6 +42,7 @@ class RootHandler {
         if (mInitialized && !mIsFinished) {
             try {
                 mShellIn.writeBytes(cmd + "\n");
+                mShellIn.flush();
                 if (millis > 0) {
                     AsyncTask<Void, Void, String> readTask =
                             new AsyncTask<Void, Void, String>() {
@@ -80,6 +81,7 @@ class RootHandler {
         if (mInitialized && !mIsFinished) {
             try {
                 mShellIn.writeBytes("exit\n");
+                mShellIn.flush();
             } catch (IOException e) {
                 e.printStackTrace();
             }
