@@ -9,10 +9,11 @@ ifneq ($(HIPACC_SETUP_COMPLETE),1)
 ################################################################################
 # Setup local C/C++ to use Renderscript from NDK
 ################################################################################
-LOCAL_C_INCLUDES += $(TARGET_C_INCLUDES)/rs/cpp \
-                    $(TARGET_C_INCLUDES)/rs
-LOCAL_LDFLAGS    += -L$(SYSROOT_LINK)/usr/lib/rs
+LOCAL_C_INCLUDES += $(RENDERSCRIPT_PLATFORM_HEADER)/cpp \
+                    $(RENDERSCRIPT_PLATFORM_HEADER)
+LOCAL_LDFLAGS    += -L$(RENDERSCRIPT_TOOLCHAIN_PREBUILT_ROOT)/platform/$(TARGET_ARCH)
 LOCAL_LDLIBS     += -lRScpp_static
+LOCAL_CFLAGS     += -std=c++11 -Wall -Wextra
 $(shell $(call host-mkdir, libs/$(TARGET_ARCH_ABI))) # must be created manually
 
 
@@ -34,7 +35,7 @@ $(shell $(call host-mkdir, $(LOCAL_PATH)/$(HIPACC_GEN_PATH)))
 # Setup Hipacc specific flags and sources to local C/C++
 ################################################################################
 LOCAL_CPPFLAGS += -DEXCLUDE_IMPL
-LOCAL_RENDERSCRIPT_FLAGS += -allow-rs-prefix \
+LOCAL_RENDERSCRIPT_FLAGS += -allow-rs-prefix -Wno-unused-variable -Wno-unused-function \
                             -target-api $(APP_MIN_PLATFORM_LEVEL) \
                             $(addprefix -I,$(HIPACC_INCLUDES))
 LOCAL_C_INCLUDES += $(HIPACC_INCLUDES) \
@@ -71,7 +72,7 @@ $(foreach SRC,$(HIPACC_SRC_FILES), \
             if [ ! -e .checksums ] || \
                [ ! -e $(HIPACC_GEN_PREFIX)$(SRC) ] || \
                [ "$$KEY:$$MD5SUM" != "$$(grep $$KEY .checksums)" ]; then \
-                hipacc $(HIPACC_FLAGS) -std=c++11 \
+                hipacc $(HIPACC_FLAGS) -std=c++11 -stdlib=libc++ \
                         -I$(shell llvm-config --includedir) \
                         -I$(shell llvm-config --includedir)/c++/v1 \
                         -I$(shell clang -print-file-name=include) \
