@@ -36,7 +36,6 @@ $(shell $(call host-mkdir, $(LOCAL_PATH)/$(HIPACC_GEN_PATH)))
 ################################################################################
 LOCAL_CPPFLAGS += -DEXCLUDE_IMPL
 LOCAL_RENDERSCRIPT_FLAGS += -allow-rs-prefix -Wno-unused-variable -Wno-unused-function \
-                            -target-api $(APP_MIN_PLATFORM_LEVEL) \
                             $(addprefix -I,$(HIPACC_INCLUDES))
 LOCAL_C_INCLUDES += $(HIPACC_INCLUDES) \
                     $(TARGET_OBJS)/$(LOCAL_MODULE)/$(HIPACC_GEN_PATH)
