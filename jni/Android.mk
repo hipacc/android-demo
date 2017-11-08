@@ -63,9 +63,9 @@ include $(BUILD_SHARED_LIBRARY)
 ################################################################################
 # Add prebuilts for Renderscript Support (legacy support API>=11)
 ################################################################################
-include $(CLEAR_VARS)
-
-LOCAL_MODULE := libRSSupport
-LOCAL_SRC_FILES := $(RENDERSCRIPT_TOOLCHAIN_PREBUILT_ROOT)/platform/$(TARGET_ARCH)/libRSSupport.so
-
-include $(PREBUILT_SHARED_LIBRARY)
+#include $(CLEAR_VARS)
+#
+#LOCAL_MODULE := libRSSupport
+#LOCAL_SRC_FILES := $(RENDERSCRIPT_TOOLCHAIN_PREBUILT_ROOT)/platform/$(TARGET_ARCH)/libRSSupport.so
+#
+#include $(PREBUILT_SHARED_LIBRARY)

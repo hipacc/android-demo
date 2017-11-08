@@ -13,7 +13,7 @@ LOCAL_C_INCLUDES += $(RENDERSCRIPT_PLATFORM_HEADER)/cpp \
                     $(RENDERSCRIPT_PLATFORM_HEADER)
 LOCAL_LDFLAGS    += -L$(RENDERSCRIPT_TOOLCHAIN_PREBUILT_ROOT)/platform/$(TARGET_ARCH)
 LOCAL_LDLIBS     += -lRScpp_static
-LOCAL_CFLAGS     += -std=c++11 -Wall -Wextra
+#LOCAL_CFLAGS     += -std=c++11 -Wall -Wextra
 $(shell $(call host-mkdir, libs/$(TARGET_ARCH_ABI))) # must be created manually
 
 
@@ -71,7 +71,7 @@ $(foreach SRC,$(HIPACC_SRC_FILES), \
             if [ ! -e .checksums ] || \
                [ ! -e $(HIPACC_GEN_PREFIX)$(SRC) ] || \
                [ "$$KEY:$$MD5SUM" != "$$(grep $$KEY .checksums)" ]; then \
-                hipacc $(HIPACC_FLAGS) -std=c++11 -stdlib=libc++ \
+                hipacc $(HIPACC_FLAGS) -std=c++11 \
                         -I$(shell llvm-config --includedir) \
                         -I$(shell llvm-config --includedir)/c++/v1 \
                         -I$(shell clang -print-file-name=include) \
