@@ -34,7 +34,7 @@ $(shell $(call host-mkdir, $(LOCAL_PATH)/$(HIPACC_GEN_PATH)))
 ################################################################################
 # Setup Hipacc specific flags and sources to local C/C++
 ################################################################################
-LOCAL_CPPFLAGS += -DEXCLUDE_IMPL
+LOCAL_CPPFLAGS += -D__HIPACC_RS_STANDALONE_HPP__
 LOCAL_RENDERSCRIPT_FLAGS += -allow-rs-prefix -Wno-unused-variable -Wno-unused-function \
                             $(addprefix -I,$(HIPACC_INCLUDES))
 LOCAL_C_INCLUDES += $(HIPACC_INCLUDES) \
