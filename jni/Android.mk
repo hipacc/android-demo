@@ -4,7 +4,7 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := filters
 
-LOCAL_CPPFLAGS += -DSIZE_X=5 -DSIZE_Y=5
+LOCAL_CPPFLAGS += -std=c++11 -Wall -Wextra -DSIZE_X=5 -DSIZE_Y=5
 LOCAL_SRC_FILES := filters.cpp
 LOCAL_LDLIBS := -llog -ljnigraphics
 
