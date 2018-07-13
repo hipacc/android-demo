@@ -20,8 +20,6 @@ $(shell $(call host-mkdir, libs/$(TARGET_ARCH_ABI))) # must be created manually
 ################################################################################
 # Setup Hipacc
 ################################################################################
-# Convert relative source path to absolute path
-HIPACC_SRC_PATH := $(shell pwd)/$(LOCAL_PATH)/$(HIPACC_SRC_PATH)
 
 # Search Hipacc includes (relative to Hipacc binary in PATH)
 HIPACC_INCLUDES += $(subst bin/hipacc,include,$(shell which hipacc)) \
@@ -66,7 +64,7 @@ endif # HIPACC_SETUP_COMPLETE
 $(foreach SRC,$(HIPACC_SRC_FILES), \
     $(shell cd $(LOCAL_PATH)/$(HIPACC_GEN_PATH); \
             MD5SUM=$$(echo $(LOCAL_CPPFLAGS) $(HIPACC_FLAGS) | \
-                    cat $(HIPACC_SRC_PATH)/$(SRC) - | $(MD5)); \
+                    cat $(LOCAL_PATH)/$(HIPACC_SRC_PATH)/$(SRC) - | $(MD5)); \
             KEY=$(HIPACC_GEN_PREFIX)$(SRC); \
             if [ ! -e .checksums ] || \
                [ ! -e $(HIPACC_GEN_PREFIX)$(SRC) ] || \
@@ -77,7 +75,7 @@ $(foreach SRC,$(HIPACC_SRC_FILES), \
                         -I$(shell clang -print-file-name=include) \
                         $(addprefix -I,$(HIPACC_INCLUDES)) \
                         $(LOCAL_CPPFLAGS) -DHIPACC \
-                        $(HIPACC_SRC_PATH)/$(SRC) \
+                        $(LOCAL_PATH)/$(HIPACC_SRC_PATH)/$(SRC) \
                         -o $(HIPACC_GEN_PREFIX)$(SRC); \
                 if [ "$$?" == "0" ]; then \
                     if grep -q $$KEY .checksums; then \

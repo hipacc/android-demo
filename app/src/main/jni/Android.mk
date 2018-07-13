@@ -15,7 +15,7 @@ LOCAL_LDLIBS := -llog -ljnigraphics
 $(call clear-vars, HIPACC_SETUP_COMPLETE)
 HIPACC_SRC_PATH := hipacc_src
 HIPACC_GEN_PATH := hipacc_gen
-HIPACC_INCLUDES := $(shell pwd)/$(LOCAL_PATH)
+HIPACC_INCLUDES := $(LOCAL_PATH)
 HIPACC_SRC_FILES := $(subst $(LOCAL_PATH)/$(HIPACC_SRC_PATH)/,,\
                             $(wildcard $(LOCAL_PATH)/$(HIPACC_SRC_PATH)/*.cpp))
 
