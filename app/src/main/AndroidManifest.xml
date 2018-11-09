@@ -4,9 +4,6 @@
     android:versionCode="1"
     android:versionName="1.0" >
 
-    <uses-sdk
-        android:minSdkVersion="19"
-        android:targetSdkVersion="27" />
     <uses-permission android:name="android.permission.ACCESS_SUPERUSER"/>
 
     <application
