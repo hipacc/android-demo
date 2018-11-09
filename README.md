@@ -1,4 +1,4 @@
-# hipacc-android-demo
+# Hipacc Android Demo
 Hipacc demonstration project for Renderscript and Filterscript for Android Studio.
 
 ## Run ##
