@@ -4,10 +4,10 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := filters
 
-LOCAL_CPPFLAGS += -std=c++11 -Wall -Wextra -DSIZE_X=5 -DSIZE_Y=5
-LOCAL_SRC_FILES := filters.cpp
-LOCAL_LDLIBS := -llog -ljnigraphics
-
+HIPACC_APP_FLAGS := -DSIZE_X=5 -DSIZE_Y=5 -D__HIPACC_RS_STANDALONE_HPP__
+LOCAL_CPPFLAGS   += -std=c++11 -Wall -Wextra $(HIPACC_APP_FLAGS)
+LOCAL_SRC_FILES  := filters.cpp
+LOCAL_LDLIBS     := -llog -ljnigraphics
 
 ################################################################################
 # Configure Hipacc
@@ -58,3 +58,5 @@ $(foreach SRC,$(HIPACC_SRC_FILES), \
 
 
 include $(BUILD_SHARED_LIBRARY)
+
+$(call import-module,android/renderscript)
